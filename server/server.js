@@ -51,69 +51,48 @@ const transporter = nodemailer.createTransport({
   },
 });
 // API to insert reservation
-app.post("/reserve", async (req, res) => {
-  const { name, email, date, time, guests } = req.body;
+app.post("/reserve", (req, res) => {
 
-  const sql =
-    "INSERT INTO reservations (name, email, date, time, guests) VALUES (?, ?, ?, ?, ?)";
+  const { name, email, date, time, guests, tableNo } = req.body;
 
-  db.query(sql, [name, email, date, time, guests], async (err, result) => {
+  const sql = `
+    INSERT INTO reservations
+    (name, email, date, time, guests, table_no, status)
+    VALUES (?, ?, ?, ?, ?, ?, 'Pending')
+  `;
 
-    try {
-      const info = await transporter.sendMail({
-        from: "kchoudhary2103@gmail.com",
-        to: email,
-        subject: "Table Reservation Confirmed 🍽️",
-        html: ` <h2>Reservation Confirmed 🎉</h2>
-          <p>Hi ${name},</p>
-          <p>Your table has been booked successfully.</p>
-          <ul>
-            <li>Date: ${date}</li>
-            <li>Time: ${time}</li>
-            <li>Guests: ${guests}</li>
-          </ul>`
-      });
+  db.query(
+    sql,
+    [name, email, date, time, guests, tableNo],
+    (err, result) => {
 
-      console.log("✅ Email sent:", info.response);
+      if (err) {
+
+        if (err.code === "ER_DUP_ENTRY") {
+          return res.json({
+            success: false,
+            message: "Slot already booked"
+          });
+        }
+
+        return res.json({
+          success: false,
+          message: "Database error"
+        });
+      }
 
       return res.json({
         success: true,
-        message: "Reservation successful & email sent"
-      });
-
-    } catch (error) {
-      console.error("❌ Email error:", error);
-    }
-
-    if (err) {
-      if (err.code === "ER_DUP_ENTRY") {
-        return res.json({
-          success: false,
-          message: "You have already booked for this date & time"
-        });
-      }
-      return res.json({
-        success: false,
-        message: "Database error"
+        message: "Reservation request sent to admin"
       });
     }
-
-
-    return res.json({
-      success: true,
-      message: "Reservation saved but email failed"
-    });
-
-  });
+  );
 });
-
 
 // Order Insertion
 app.post("/order", (req, res) => {
 
   const { name, address, items, total } = req.body;
-
-  // STEP 1 -> Insert into orders table
   const orderSql = `
     INSERT INTO orders (customer_name, address, total_price)
     VALUES (?, ?, ?)
@@ -125,11 +104,7 @@ app.post("/order", (req, res) => {
       console.log(err);
       return res.status(500).send("Order Error");
     }
-
-    // newly created order id
     const orderId = orderResult.insertId;
-
-    // STEP 2 -> insert order items
     const itemValues = items.map((item) => [
       orderId,
       item.name,
@@ -368,6 +343,141 @@ app.get("/api/dashboard/trending", (req, res) => {
 
   });
 
+});
+
+app.get("/api/reservations", (req, res) => {
+
+  const sql = `
+    SELECT * FROM reservations
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, (err, result) => {
+
+    if (err) {
+      return res.json({
+        success: false
+      });
+    }
+
+    res.json({
+      success: true,
+      reservations: result
+    });
+
+  });
+
+});
+
+app.put("/api/reservations/confirm/:id", (req, res) => {
+
+  const { id } = req.params;
+  const getSql = `
+    SELECT * FROM reservations
+    WHERE id = ?
+  `;
+  db.query(getSql, [id], async (err, result) => {
+
+    if (err || result.length === 0) {
+      return res.json({
+        success: false,
+        message: "Reservation not found"
+      });
+    }
+    const reservation = result[0];
+    const updateSql = `
+      UPDATE reservations
+      SET status = 'Confirmed'
+      WHERE id = ?
+    `;
+    db.query(updateSql, [id], async (err2) => {
+
+      if (err2) {
+        return res.json({
+          success: false,
+          message: "Status update failed"
+        });
+      }
+      // send confirmation email
+      try {
+        await transporter.sendMail({
+          from: "kchoudhary2103@gmail.com",
+          to: reservation.email,
+          subject: "Table Reservation Confirmed 🍽️",
+          html: `
+            <h2>Reservation Confirmed 🎉</h2>
+            <p>Hello ${reservation.name},</p>
+            <p>Your reservation has been confirmed.</p>
+            <ul>
+              <li>Date: ${reservation.date}</li>
+              <li>Time: ${reservation.time}</li>
+              <li>Guests: ${reservation.guests}</li>
+            </ul>
+            <p>We look forward to serving you ❤️</p>
+          `});
+
+        return res.json({
+          success: true,
+          message: "Reservation confirmed & email sent"
+        });
+
+      } catch (emailErr) {
+        return res.json({
+          success: true,
+          message: "Confirmed but email failed"
+        });
+      }
+    });
+  });
+});
+
+app.put("/api/reservations/cancel/:id", (req, res) => {
+
+  const { id } = req.params;
+  const sql = `
+    UPDATE reservations
+    SET status = 'Cancelled'
+    WHERE id = ?
+  `;
+  db.query(sql, [id], (err) => {
+
+    if (err) {
+      return res.json({
+        success: false
+      });
+    }
+    res.json({
+      success: true,
+      message: "Reservation cancelled"
+    });
+  });
+});
+
+app.get("/api/orders", (req, res) => {
+
+  const sql = `
+    SELECT 
+      orders.id,
+      orders.customer_name,
+      orders.address,
+      orders.total_price,
+      orders.created_at,
+      order_items.item,
+      order_items.quantity
+    FROM orders
+    JOIN order_items
+    ON orders.id = order_items.order_id
+    ORDER BY orders.id DESC
+  `;
+
+  db.query(sql, (err, result) => {
+
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+  });
 });
 
 // Serve Vite build

@@ -5,29 +5,18 @@ import { clearCart } from "../redux/cartSlice";
 
 export default function Order() {
 
-  const cart = useSelector((state) => state.cart);
+  const cart = useSelector((state) => state.cart || []);
   const dispatch = useDispatch();
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-  const [item, setItem] = useState("");
-  const [quantity, setQuantity] = useState(1);
 
-  // CART TOTAL
-  const cartTotal = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  const [loading, setLoading] = useState(false);
+  const total = cart.reduce(
+    (sum, item) =>
+      sum + Number(item.price) * item.quantity,
     0
   );
-
-  // SINGLE ITEM TOTAL
-  const manualTotal =
-    (prices[item] || 0) * quantity;
-
-  // FINAL TOTAL
-  const total =
-    cart.length > 0
-      ? cartTotal
-      : manualTotal;
 
   // SUBMIT ORDER
   const handleSubmit = async (e) => {
@@ -35,46 +24,39 @@ export default function Order() {
     e.preventDefault();
 
     // VALIDATION
-    if (!name) {
+    if (!name.trim()) {
       alert("Please enter your name");
       return;
     }
-    if (!address) {
+
+    if (!address.trim()) {
       alert("Please enter your address");
       return;
     }
 
-    if (cart.length === 0 && !item) {
-      alert("Please select an item");
+    if (cart.length === 0) {
+      alert("Cart is empty");
       return;
     }
 
     // ORDER OBJECT
     const orderData = {
-      name,
-      address,
-      items:
-        cart.length > 0
-          ? cart.map((cartItem) => ({
-            name: cartItem.name,
-            quantity: cartItem.quantity,
-            price: cartItem.price,
-          }))
-          : [
-            {
-              name: item,
-              quantity,
-              price: prices[item],
-            },
-          ],
+
+      name: name.trim(),
+      address: address.trim(),
+
+      items: cart.map((item) => ({
+        name: item.name,
+        quantity: item.quantity,
+        price: item.price,
+      })),
 
       total,
     };
 
     try {
-
-      const response = await fetch(
-        "http://localhost:5000/order",
+      setLoading(true);
+      const response = await fetch("http://localhost:5000/order",
         {
           method: "POST",
           headers: {
@@ -84,46 +66,57 @@ export default function Order() {
         }
       );
 
-      const data = await response.json();
-
-      if (data.success) {
-
-        alert("Order Placed Successfully!");
-
-        dispatch(clearCart());
-
-        setName("");
-        setItem("");
-        setQuantity(1);
-
-      } else {
-        alert("Order Failed");
+      // CHECK RESPONSE
+      if (!response.ok) {
+        throw new Error("Request failed");
       }
 
+      const data = await response.json();
+
+      // SUCCESS
+      if (data.success) {
+        alert("Order Placed Successfully!");
+        dispatch(clearCart());
+        setName("");
+        setAddress("");
+
+      } else {
+        alert(data.message || "Order Failed");
+      }
     } catch (error) {
-
-      console.log(error);
-
+      console.error("Order Error:", error);
       alert("Server Error");
 
+    } finally {
+      setLoading(false);
     }
-
   };
+
+  // EMPTY CART UI
+  if (cart.length === 0) {
+
+    return (
+      <div className="container py-5 text-center">
+
+        <h3 className="text-warning">
+          Your cart is empty 🛒
+        </h3>
+
+      </div>
+    );
+  }
 
   return (
     <div className="container py-5">
-
       <div className="row justify-content-center">
-
         <div className="col-md-5 col-lg-4">
-
           <form
-            className="order-box"
+            className="order-box p-4 rounded shadow"
             onSubmit={handleSubmit}
           >
-
-            {/* CUSTOMER NAME */}
             <input
+              type="text"
+              required
               className="form-control mb-3"
               placeholder="Your Name"
               value={name}
@@ -132,6 +125,7 @@ export default function Order() {
               }
             />
             <textarea
+              required
               className="form-control mb-3"
               placeholder="Delivery Address"
               rows="3"
@@ -141,61 +135,49 @@ export default function Order() {
               }
             />
 
-            {/* CART ITEMS */}
-            {cart.length > 0 && (
+            <div className="mb-3">
 
-              <div className="mb-3">
+              <p className="text-warning fw-bold">
+                Items from Cart:
+              </p>
 
-                <p className="text-warning">
-                  Items from Cart:
-                </p>
+              {cart.map((item, index) => (
 
-                {cart.map((item) => (
+                <div
+                  key={`${item.name}-${index}`}
+                  className="d-flex justify-content-between mb-2">
+                  <span>
+                    {item.name} × {item.quantity}
+                  </span>
 
-                  <div key={item.name}>
-
-                    {item.name}
-                    {" × "}
-                    {item.quantity}
-
-                    {" - ₹"}
-
-                    {item.price * item.quantity}
-
-                  </div>
-
-                ))}
-
-              </div>
-
-            )}
+                  <span>
+                    ₹
+                    {Number(item.price) *
+                      item.quantity}
+                  </span>
+                </div>))}
+            </div>
 
             {/* TOTAL */}
             <h5 className="text-warning text-center">
-
               Total: ₹{total}
-
             </h5>
 
             {/* SUBMIT BUTTON */}
             <motion.button
               className="btn btn-warning w-100 mt-3"
               type="submit"
-              animate={{ scale: [1, 1.05, 1] }}
+              disabled={loading}
+              animate={{ scale: [1, 1.03, 1] }}
               transition={{
                 repeat: Infinity,
                 duration: 1,
               }}
-            >
-              Place Order
+            > Place Order
             </motion.button>
-
           </form>
-
         </div>
-
       </div>
-
     </div>
   );
 }

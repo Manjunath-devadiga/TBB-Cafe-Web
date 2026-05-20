@@ -49,14 +49,9 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-       <Sidebar></Sidebar>
-
-      {/* MAIN CONTENT */}
+       <Sidebar></Sidebar>      
       <div className="main-content container-fluid">
-
-        {/* HEADER */}
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-
           <div>
             <h2 className="fw-bold">
               Welcome to Our Cafe ☕

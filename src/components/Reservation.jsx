@@ -6,7 +6,8 @@ export default function Reservation() {
     email: "",
     date: "",
     time: "",
-    guests: ""
+    guests: "",
+    tableNo: ""
   });
 
   const [message, setMessage] = useState("");
@@ -54,6 +55,12 @@ export default function Reservation() {
       newErrors.guests = "Max 10 guests allowed";
     }
 
+    if (!form.tableNo) {
+      newErrors.tableNo = "Table number is required";
+    } else if (form.tableNo < 1) {
+      newErrors.tableNo = "Invalid table number";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -80,7 +87,8 @@ export default function Reservation() {
           email: "",
           date: "",
           time: "",
-          guests: ""
+          guests: "",
+          tableNo: ""
         });
         setErrors({});
       } else {
@@ -151,6 +159,18 @@ export default function Reservation() {
                   onChange={handleChange}
                 />
                 {errors.guests && <small className="text-danger">{errors.guests}</small>}
+
+                <input
+                  type="number"
+                  className="form-control mb-1"
+                  name="tableNo"
+                  placeholder="Table Number"
+                  value={form.tableNo}
+                  onChange={handleChange}
+                />
+                {errors.tableNo && (
+                  <small className="text-danger">{errors.tableNo}</small>
+                )}
 
                 <button
                   type="submit"

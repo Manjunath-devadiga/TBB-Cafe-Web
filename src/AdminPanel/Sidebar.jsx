@@ -2,11 +2,10 @@ import { useNavigate } from "react-router-dom";
 
 import {
     House,
-    Cart3,
+    CalendarCheckFill,
     Clipboard,
     Heart,
-    CreditCard,
-    Gear,
+    ChatSquareText,
     BoxArrowRight,
 } from "react-bootstrap-icons";
 
@@ -30,29 +29,25 @@ export default function Sidebar() {
                   onClick={() => navigate("/dashboard")}
                 />
                 <MenuItem
-                  icon={<Cart3 />}
-                  label="Shopping"
+                  icon={<CalendarCheckFill/>}
+                  label="Reservation"
+                  onClick={() => navigate("/dashboard/ReservationManagement")}
                 />
 
                 <MenuItem
                   icon={<Clipboard />}
                   label="Orders"
-                  onClick={() => navigate("/orders")}/>
+                  onClick={() => navigate("/dashboard/orders")}/>
 
                 <MenuItem
                   icon={<Heart />}
                   label="MenuManagement"
-                  onClick={() => navigate("/Menumanagement")}
+                  onClick={() => navigate("/dashboard/Menumanagement")}
                 />
 
                 <MenuItem
-                  icon={<CreditCard />}
-                  label="Payments"
-                />
-
-                <MenuItem
-                   icon={<Gear />}
-                   label="Settings"
+                  icon={<ChatSquareText/>}
+                  label="Cutomer reviews"
                 />
 
             </div>

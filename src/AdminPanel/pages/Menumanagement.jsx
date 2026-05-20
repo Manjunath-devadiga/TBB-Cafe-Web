@@ -2,9 +2,9 @@ import AddMenuItem from "../AddMenuItem";
 import Sidebar from "../Sidebar";
 export default function MenuManagement() {
   return (
-    <div className="container py-4">
-        <Sidebar></Sidebar>
-
+    <div className="dashboard-container">    
+          <Sidebar />
+      <div className="main-content container-fluid">    
       <div className="mb-4">
         <h2 className="fw-bold">
           Menu Management 🍽️
@@ -16,6 +16,7 @@ export default function MenuManagement() {
       </div>
 
       <AddMenuItem />
+    </div>
     </div>
   );
 }
