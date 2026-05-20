@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./dashboard.css";
 import Sidebar from "./Sidebar";
-import AdminLogin from "./AdminLogin";
 
 export default function Dashboard() {
 
@@ -19,8 +18,6 @@ export default function Dashboard() {
   const [trendingmenu, setTrending] = useState([]);
 
   useEffect(() => {
-    <AdminLogin></AdminLogin>
-
     const token = localStorage.getItem("token");
 
     if (!token) {

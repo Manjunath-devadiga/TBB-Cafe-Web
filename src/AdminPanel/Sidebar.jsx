@@ -31,18 +31,18 @@ export default function Sidebar() {
                 <MenuItem
                   icon={<CalendarCheckFill/>}
                   label="Reservation"
-                  onClick={() => navigate("/dashboard/ReservationManagement")}
+                  onClick={() => navigate("/ReservationManagement")}
                 />
 
                 <MenuItem
                   icon={<Clipboard />}
                   label="Orders"
-                  onClick={() => navigate("/dashboard/orders")}/>
+                  onClick={() => navigate("/orders")}/>
 
                 <MenuItem
                   icon={<Heart />}
                   label="MenuManagement"
-                  onClick={() => navigate("/dashboard/Menumanagement")}
+                  onClick={() => navigate("/Menumanagement")}
                 />
 
                 <MenuItem

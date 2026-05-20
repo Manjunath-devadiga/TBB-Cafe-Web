@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import ProtectedLayout from "./components/ProtectedLayout";
 import Navbar from "./components/Navbar";
 import Orders from "./AdminPanel/pages/Orders";
 import Footer from "./components/Footer";
@@ -31,20 +30,15 @@ export default function App() {
           <Route path="/login" element={<AdminLogin />} />
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/menu" element={<Menu cart={cart} setCart={setCart} />} />
-          <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} />
+          <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} /> 
           <Route path="/reservation" element={<Reservation />} />
           <Route path="/order" element={<Order />} />
           <Route path="/contact" element={<Contact />} />
-
-          <Route element={<ProtectedLayout />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/dashboard/orders" element={<Orders />} />
-            <Route path="/dashboard/menu" element={<MenuManagement />} />
-            <Route
-              path="/dashboard/reservations"
-              element={<ReservationManagement />}
-            />
-          </Route>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/orders" element={<Orders />} />
+          <Route path="/Menumanagement" element={<MenuManagement />} />
+          <Route path="/ReservationManagement" element={<ReservationManagement />}/>         
+          
         </Routes>
 
       </div>
