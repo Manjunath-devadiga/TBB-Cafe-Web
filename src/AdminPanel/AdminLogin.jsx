@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useDispatch } from "react-redux";
+import { loginSuccess } from "../redux/authSlice";
 
 export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogin = async () => {
     const res = await fetch("http://localhost:5000/admin/login", {
@@ -19,7 +22,7 @@ export default function AdminLogin() {
     const data = await res.json();
 
     if (data.success) {
-      localStorage.setItem("token", data.token);
+      dispatch(loginSuccess(data.token));
       navigate("/dashboard");
     } else {
       alert("Wrong credentials ❌");

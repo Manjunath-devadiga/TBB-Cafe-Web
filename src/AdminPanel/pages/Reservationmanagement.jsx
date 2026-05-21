@@ -1,65 +1,88 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector} from "react-redux";
+import {
+  reservationStart,
+  reservationSuccess,
+  reservationFailure,
+} from "../../redux/reservationSlice";
 import Sidebar from "../Sidebar";
 
 export default function ReservationManagement() {
 
-  const [reservations, setReservations] = useState([]);
+const dispatch = useDispatch();
+const {
+  reservations,
+  loading,
+  error,
+} = useSelector((state) => state.reservations);
 
   // fetch reservations
-  const fetchReservations = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/reservations"
-      );
-      const data = await res.json();
-
-      if (data.success) {
-        setReservations(data.reservations);
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
-    fetchReservations();
-  }, []);
+  const fetchReservations = async () => {
+  try {
+
+    dispatch(reservationStart());
+    const res = await fetch(
+      "http://localhost:5000/api/reservations"
+    );
+
+    const data = await res.json();
+    if (data.success) {
+      dispatch(
+        reservationSuccess(data.reservations));
+     }
+  } catch (err) {
+    dispatch(
+      reservationFailure(err.message));
+  }
+  };
+   fetchReservations();
+   },
+ [dispatch]);
+
 
   // confirm reservation
-  const confirmReservation = async (id) => {
+ const confirmReservation = async (id) => {
 
-    try {
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/reservations/confirm/${id}`,
+      {
+        method: "PUT",
+      }
+    );
 
-      const res = await fetch(
-        `http://localhost:5000/api/reservations/confirm/${id}`,
-        {
-          method: "PUT"
-        }
-      );
-      const data = await res.json();
-      alert(data.message);
-      fetchReservations();
-    } catch (err) {
-      console.log(err);
-    }  };
+    const data = await res.json();
+    alert(data.message);
+    fetchReservations();
+
+  } catch (err) {
+    dispatch(
+      reservationFailure(err.message));
+  }
+};
 
   // cancel reservation
-  const cancelReservation = async (id) => {
+ const cancelReservation = async (id) => {
 
-    try {
-      const res = await fetch(
-        `http://localhost:5000/api/reservations/cancel/${id}`,
-        {
-          method: "PUT"
-        }
-      );
-      const data = await res.json();
-      alert(data.message);
-      fetchReservations();
-    } catch (err) {
-      console.log(err);
-    }
-  };
+  try {
+    const res = await fetch(
+      `http://localhost:5000/api/reservations/cancel/${id}`,
+      {
+        method: "PUT",
+      }
+    );
+
+    const data = await res.json();
+    alert(data.message);
+    fetchReservations();
+
+  } catch (err) {
+
+    dispatch(
+      reservationFailure(err.message));
+  }
+};
 
   return (
     <div className="dashboard-container">    

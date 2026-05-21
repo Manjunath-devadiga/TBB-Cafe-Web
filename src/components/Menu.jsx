@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { discountConfig } from "../data/discountConfig";
 import { motion } from "framer-motion";
 import { MENU_TYPES, CATEGORY } from "../config/menuConfig";
+import {
+  fetchMenuStart,
+  fetchMenuSuccess,
+  fetchMenuFailure,
+} from "../redux/menuSlice";
 
 import headerImg from "../assets/Pasta.jpg";
 import vegImg from "../assets/Salad.jpg";
@@ -11,17 +16,29 @@ import nonVegImg from "../assets/Masala Dosa.jpg";
 
 export default function MenuPage() {
   const dispatch = useDispatch();
-  const [items, setItems] = useState([]);
+  const { items, loading, error } = useSelector(
+  (state) => state.menu);
   const [foodType, setFoodType] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:5000/api/menu")
-      .then(res => res.json())
-      .then(data => setItems(data))
-      .catch(err => console.error(err));
-  }, []);
+useEffect(() => {
+  const fetchMenu = async () => {
+    try {
+      dispatch(fetchMenuStart());
+
+      const res = await fetch(
+        "http://localhost:5000/api/menu"
+      );
+      const data = await res.json();
+      dispatch(fetchMenuSuccess(data));
+    } catch (err) {
+      dispatch(fetchMenuFailure(err.message));
+    }
+  };
+
+  fetchMenu();
+  }, [dispatch]);
 
   useEffect(() => {
     setSelectedCategory("All");

@@ -1,19 +1,40 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useDispatch, useSelector,} from "react-redux";
+import {
+  orderStart,
+  orderSuccess,
+  orderFailure,
+} from "../../redux/orderSlice";
 import Sidebar from "../Sidebar";
 
 export default function Orders() {
 
-  const [orders, setOrders] = useState([]);
+  const dispatch = useDispatch();
+  const {
+    orders,
+    loading,
+    error,
+   } = useSelector((state) => state.orders);
 
   // FETCH ORDERS
   useEffect(() => {
+  const fetchOrders = async () => {
+    try {
+      dispatch(orderStart());
+      const res = await fetch(
+        "http://localhost:5000/api/orders"
+      );
 
-    fetch("http://localhost:5000/api/orders")
-      .then((res) => res.json())
-      .then((data) => setOrders(data))
-      .catch((err) => console.log(err));
+      const data = await res.json();
+      dispatch(orderSuccess(data));
 
-  }, []);
+    } catch (err) {
+      dispatch(orderFailure(err.message));
+    }
+  };
+  fetchOrders();
+}, [dispatch]);
+
   return (
     <div className="dashboard-container">
       <Sidebar />
