@@ -1,7 +1,14 @@
 import { useState } from "react";
+import {
+  getCustomer
+} from "../utils/customerAuth";
 
 export default function Reservation() {
+
+  const customer = getCustomer();
   const [form, setForm] = useState({
+   
+    customerId: customer?.id || null,
     name: "",
     email: "",
     date: "",
@@ -83,6 +90,7 @@ export default function Reservation() {
       if (data.success) {
         setMessage(data.message);
         setForm({
+          
           name: "",
           email: "",
           date: "",
@@ -110,7 +118,7 @@ export default function Reservation() {
               <h3 className="text-center mb-4">Reserve a Table</h3>
 
               {message && (
-                <div className={`alert ${message.includes("successful") ? "alert-success" : "alert-danger"}`}>
+                <div className={`alert ${message.includes("successful") ? "alert-success" : "alert-danger"}`} >
                   {message}
                 </div>
               )}

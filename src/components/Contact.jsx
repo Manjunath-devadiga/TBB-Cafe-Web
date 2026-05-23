@@ -21,7 +21,7 @@ export default function Contact() {
   const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const response = await fetch("http://localhost:8080/api/enquiry", {
+  const response = await fetch("http://localhost:5000/api/enquiry", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -211,7 +211,7 @@ export default function Contact() {
                   ></textarea>
                 </div>
 
-                <button className="btn btn-dark w-100 py-2 fs-5 rounded-3">
+                <button type="submit" className="btn btn-dark w-100 py-2 fs-5 rounded-3" >
                   Submit Enquiry
                 </button>
 

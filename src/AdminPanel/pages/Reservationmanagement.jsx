@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector} from "react-redux";
 import {
-  reservationStart,
   reservationSuccess,
   reservationFailure,
 } from "../../redux/reservationSlice";
@@ -10,18 +9,12 @@ import Sidebar from "../Sidebar";
 export default function ReservationManagement() {
 
 const dispatch = useDispatch();
-const {
-  reservations,
-  loading,
-  error,
-} = useSelector((state) => state.reservations);
+const {reservations, error} = useSelector((state) => state.reservations);
 
   // fetch reservations
   useEffect(() => {
   const fetchReservations = async () => {
   try {
-
-    dispatch(reservationStart());
     const res = await fetch(
       "http://localhost:5000/api/reservations"
     );
@@ -36,8 +29,7 @@ const {
       reservationFailure(err.message));
   }
   };
-   fetchReservations();
-   },
+   fetchReservations();},
  [dispatch]);
 
 

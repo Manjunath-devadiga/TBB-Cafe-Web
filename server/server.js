@@ -1,4 +1,6 @@
+require("dotenv").config();
 const express = require("express");
+const db = require("./config/db")
 const path = require("path");
 const nodemailer = require("nodemailer");
 const mysql = require("mysql2");
@@ -7,11 +9,13 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
-require("dotenv").config();
+
 
 const adminRoutes = require("./routes/adminRoutes");
+const customerRoutes = require("./routes/customerRoutes");
 
 app.use("/admin", adminRoutes);
+app.use("/api/customers",customerRoutes);
 
 // protected route (basic)
 app.get("/admin/dashboard", (req, res) => {
@@ -22,23 +26,6 @@ app.get("/admin/dashboard", (req, res) => {
   }
 
   res.status(401).json({ message: "Unauthorized ❌" });
-});
-
-
-// MySQL connection
-const db = mysql.createConnection({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
-
-db.connect((err) => {
-  if (err) {
-    console.error("Database connection failed:", err);
-  } else {
-    console.log("Connected to MySQL");
-  }
 });
 
 const transporter = nodemailer.createTransport({
@@ -53,17 +40,17 @@ const transporter = nodemailer.createTransport({
 // API to insert reservation
 app.post("/reserve", (req, res) => {
 
-  const { name, email, date, time, guests, tableNo } = req.body;
+  const { customerId, name, email, date, time, guests, tableNo } = req.body;
 
   const sql = `
     INSERT INTO reservations
-    (name, email, date, time, guests, table_no, status)
-    VALUES (?, ?, ?, ?, ?, ?, 'Pending')
+    (customer_id, name, email, date, time, guests, table_no, status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 'Pending')
   `;
 
   db.query(
     sql,
-    [name, email, date, time, guests, tableNo],
+    [customerId, name, email, date, time, guests, tableNo],
     (err, result) => {
 
       if (err) {
@@ -92,13 +79,13 @@ app.post("/reserve", (req, res) => {
 // Order Insertion
 app.post("/order", (req, res) => {
 
-  const { name, address, items, total } = req.body;
+  const { customerId, name, address, items, total } = req.body;
   const orderSql = `
-    INSERT INTO orders (customer_name, address, total_price)
-    VALUES (?, ?, ?)
+    INSERT INTO orders (customer_id, customer_name, address, total_price)
+    VALUES (?, ?, ?, ?)
   `;
 
-  db.query(orderSql, [name, address, total], (err, orderResult) => {
+  db.query(orderSql, [customerId, name, address, total], (err, orderResult) => {
 
     if (err) {
       console.log(err);
@@ -489,4 +476,5 @@ app.use((req, res) => {
 app.listen(5000, () => {
   console.log("Running on http://localhost:5000");
 });
+
 

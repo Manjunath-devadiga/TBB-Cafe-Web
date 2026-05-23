@@ -5,8 +5,12 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { getCustomer, logoutCustomer,} from "../utils/customerAuth";
+
 
 export default function Navbar() {
+  
+  const customer = getCustomer();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const cart = useSelector((state) => state.cart);
@@ -80,7 +84,7 @@ export default function Navbar() {
               Cart ({totalItems})
             </Link>
           </div>
-          <Link to="/login">
+          <Link to="/customer-login">
             <button className="btn btn-warning ms-3">Login</button>
           </Link>
         </div>

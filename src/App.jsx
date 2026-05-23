@@ -15,6 +15,9 @@ import Order from "./components/Order";
 import AdminLogin from "./AdminPanel/AdminLogin";
 import MenuManagement from "./AdminPanel/pages/Menumanagement";
 import ReservationManagement from "./AdminPanel/pages/Reservationmanagement";
+import CustomerRegister from "./CustomerPanel/CustomerRegister";
+import CustomerLogin from "./CustomerPanel/CustomerLogin";
+import CustomerProtectedRoute from "./components/CustomerProtectedRoute";
 
 export default function App() {
   const [cart, setCart] = useState([]);
@@ -31,14 +34,16 @@ export default function App() {
           <Route path="/aboutus" element={<AboutUs />} />
           <Route path="/menu" element={<Menu cart={cart} setCart={setCart} />} />
           <Route path="/cart" element={<Cart cart={cart} setCart={setCart} />} /> 
-          <Route path="/reservation" element={<Reservation />} />
-          <Route path="/order" element={<Order />} />
+          <Route path="/reservation" element={<CustomerProtectedRoute><Reservation /></CustomerProtectedRoute>} />
+          <Route path="/order" element={<CustomerProtectedRoute> <Order /> </CustomerProtectedRoute>} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/orders" element={<Orders />} />
           <Route path="/Menumanagement" element={<MenuManagement />} />
-          <Route path="/ReservationManagement" element={<ReservationManagement />}/>         
-          
+          <Route path="/ReservationManagement" element={<ReservationManagement />}/>        
+          <Route path="/customer-register" element={<CustomerRegister />}/> 
+          <Route path="/customer-login" element={<CustomerLogin />}/> 
+
         </Routes>
 
       </div>

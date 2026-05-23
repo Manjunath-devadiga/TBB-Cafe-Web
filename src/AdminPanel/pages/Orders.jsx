@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector,} from "react-redux";
 import {
-  orderStart,
   orderSuccess,
   orderFailure,
 } from "../../redux/orderSlice";
@@ -12,7 +11,6 @@ export default function Orders() {
   const dispatch = useDispatch();
   const {
     orders,
-    loading,
     error,
    } = useSelector((state) => state.orders);
 
@@ -20,7 +18,6 @@ export default function Orders() {
   useEffect(() => {
   const fetchOrders = async () => {
     try {
-      dispatch(orderStart());
       const res = await fetch(
         "http://localhost:5000/api/orders"
       );

@@ -4,11 +4,7 @@ import { addToCart } from "../redux/cartSlice";
 import { discountConfig } from "../data/discountConfig";
 import { motion } from "framer-motion";
 import { MENU_TYPES, CATEGORY } from "../config/menuConfig";
-import {
-  fetchMenuStart,
-  fetchMenuSuccess,
-  fetchMenuFailure,
-} from "../redux/menuSlice";
+import {  fetchMenuSuccess, fetchMenuFailure} from "../redux/menuSlice";
 
 import headerImg from "../assets/Pasta.jpg";
 import vegImg from "../assets/Salad.jpg";
@@ -16,7 +12,7 @@ import nonVegImg from "../assets/Masala Dosa.jpg";
 
 export default function MenuPage() {
   const dispatch = useDispatch();
-  const { items, loading, error } = useSelector(
+  const { items, error } = useSelector(
   (state) => state.menu);
   const [foodType, setFoodType] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -25,8 +21,6 @@ export default function MenuPage() {
 useEffect(() => {
   const fetchMenu = async () => {
     try {
-      dispatch(fetchMenuStart());
-
       const res = await fetch(
         "http://localhost:5000/api/menu"
       );

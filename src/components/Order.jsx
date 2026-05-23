@@ -2,16 +2,15 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSelector, useDispatch } from "react-redux";
 import { clearCart } from "../redux/cartSlice";
+import { getCustomer} from "../utils/customerAuth";
 
 export default function Order() {
 
   const cart = useSelector((state) => state.cart || []);
   const dispatch = useDispatch();
-
+  const customer = getCustomer();
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
-
-  const [loading, setLoading] = useState(false);
   const total = cart.reduce(
     (sum, item) =>
       sum + Number(item.price) * item.quantity,
@@ -40,8 +39,8 @@ export default function Order() {
     }
 
     // ORDER OBJECT
-    const orderData = {
-
+    const orderData = {      
+      customerId: customer?.id || null,
       name: name.trim(),
       address: address.trim(),
 
@@ -55,7 +54,6 @@ export default function Order() {
     };
 
     try {
-      setLoading(true);
       const response = await fetch("http://localhost:5000/order",
         {
           method: "POST",
@@ -70,7 +68,6 @@ export default function Order() {
       if (!response.ok) {
         throw new Error("Request failed");
       }
-
       const data = await response.json();
 
       // SUCCESS
@@ -87,9 +84,7 @@ export default function Order() {
       console.error("Order Error:", error);
       alert("Server Error");
 
-    } finally {
-      setLoading(false);
-    }
+    } 
   };
 
   // EMPTY CART UI
@@ -167,7 +162,6 @@ export default function Order() {
             <motion.button
               className="btn btn-warning w-100 mt-3"
               type="submit"
-              disabled={loading}
               animate={{ scale: [1, 1.03, 1] }}
               transition={{
                 repeat: Infinity,
