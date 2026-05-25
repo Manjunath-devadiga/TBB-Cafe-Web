@@ -5,11 +5,11 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { getCustomer, logoutCustomer,} from "../utils/customerAuth";
+import { getCustomer, logoutCustomer, } from "../utils/customerAuth";
 
 
 export default function Navbar() {
-  
+
   const customer = getCustomer();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -59,12 +59,59 @@ export default function Navbar() {
               </NavLink>
             </li>
 
-            <li className="nav-item">
-              <NavLink to="/menu" className="nav-link">
-                Menu
+            <li
+              className="nav-item dropdown"
+              onMouseEnter={(e) =>
+                e.currentTarget.classList.add("show")
+              }
+              onMouseLeave={(e) =>
+                e.currentTarget.classList.remove("show")
+              }
+            >
+              <NavLink to="/menu"
+                className="nav-link dropdown-toggle"
+                role="button"
+              > Menu
               </NavLink>
-            </li>
 
+              <ul className="dropdown-menu">
+                <li>
+                  <NavLink to="/menu?type=Veg"
+                    className="dropdown-item"
+                  > Veg
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/menu?type=Non-Veg"
+                    className="dropdown-item"
+                  > Non-Veg
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/menu?type=Add-Ons"
+                    className="dropdown-item"
+                  >  Add-Ons
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink
+                    to="/menu?type=Drinks"
+                    className="dropdown-item"
+                  > Drinks
+                  </NavLink>
+                </li>
+
+                <li>
+                  <NavLink to="/menu?type=Desserts"
+                    className="dropdown-item"
+                  > Desserts
+                  </NavLink>
+                </li>
+              </ul>
+            </li>
             <li className="nav-item">
               <NavLink to="/reservation" className="nav-link">
                 Reservation
@@ -84,9 +131,32 @@ export default function Navbar() {
               Cart ({totalItems})
             </Link>
           </div>
-          <Link to="/customer-login">
-            <button className="btn btn-warning ms-3">Login</button>
-          </Link>
+          {customer ? (
+            <div className="d-flex align-items-center">
+
+              <Link to="/orderhistory">
+                <button className="btn btn-warning ms-3">
+                  My Orders
+                </button>
+              </Link>
+
+              <button
+                className="btn btn-danger ms-3"
+                onClick={() => {
+                  logoutCustomer();
+                  navigate("/customer-login");
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link to="/customer-login">
+              <button className="btn btn-warning ms-3">
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       </div>
     </motion.nav>

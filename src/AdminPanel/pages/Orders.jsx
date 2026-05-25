@@ -72,10 +72,10 @@ export default function Orders() {
                         {order.address}
                       </td>
                       <td>
-                        {order.item}
+                        {order.items}
                       </td>
                       <td>
-                        {order.quantity}
+                        {order.quantities}
                       </td>
                       <td>
                         ₹{order.total_price}

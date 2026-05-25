@@ -11,23 +11,43 @@ export default function AdminLogin() {
   const dispatch = useDispatch();
 
   const handleLogin = async () => {
-    const res = await fetch("http://localhost:5000/admin/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+  try {
+    const res = await fetch(
+      "http://localhost:5000/admin/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          password,
+        }),
+      }
+    );
 
     const data = await res.json();
 
     if (data.success) {
+      // Save token
+      localStorage.setItem(
+        "adminToken",
+        data.token
+      );
+      // Redux
       dispatch(loginSuccess(data.token));
+
+      // Redirect
       navigate("/dashboard");
     } else {
-      alert("Wrong credentials ❌");
+      alert(data.message);
     }
-  };
+  } catch (err) {
+    console.error(err);
+
+    alert("Server Error");
+  }
+};
 
   return (
     <div

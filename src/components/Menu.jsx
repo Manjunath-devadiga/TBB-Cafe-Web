@@ -5,6 +5,7 @@ import { discountConfig } from "../data/discountConfig";
 import { motion } from "framer-motion";
 import { MENU_TYPES, CATEGORY } from "../config/menuConfig";
 import {  fetchMenuSuccess, fetchMenuFailure} from "../redux/menuSlice";
+import { useLocation } from "react-router-dom";
 
 import headerImg from "../assets/Pasta.jpg";
 import vegImg from "../assets/Salad.jpg";
@@ -12,11 +13,26 @@ import nonVegImg from "../assets/Masala Dosa.jpg";
 
 export default function MenuPage() {
   const dispatch = useDispatch();
+  const location = useLocation();
   const { items, error } = useSelector(
   (state) => state.menu);
   const [foodType, setFoodType] = useState("All");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [search, setSearch] = useState("");
+  useEffect(() => {
+  const params = new URLSearchParams(location.search);
+
+  const type = params.get("type");
+  const category = params.get("category");
+
+  if (type) {
+    setFoodType(type);
+  }
+
+  if (category) {
+    setSelectedCategory(category);
+  }
+}, [location.search]);
 
 useEffect(() => {
   const fetchMenu = async () => {

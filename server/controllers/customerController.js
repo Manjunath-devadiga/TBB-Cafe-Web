@@ -69,7 +69,7 @@ const customerRegister = async (req, res) => {
                 email,
               },
 
-              process.env.JWT_SECRET,
+              process.env.CUSTOMER_JWT_SECRET,
 
               {
                 expiresIn: "7d",
@@ -152,7 +152,7 @@ const customerLogin = async (req, res) => {
             id: customer.id,
             email: customer.email,
           },
-          process.env.JWT_SECRET,
+          process.env.CUSTOMER_JWT_SECRET,
           {
             expiresIn: "7d",
           }

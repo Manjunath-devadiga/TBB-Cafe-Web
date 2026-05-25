@@ -52,14 +52,9 @@ export default function CustomerLogin() {
 
         alert("Login Successful ✅");
         navigate("/");
-
-      } else {
-
-        alert(
-          data.message ||
-          "Login Failed"
-        );
-
+      } 
+      else {
+        alert(data.message || "Login Failed");
       }
 
     } catch (err) {

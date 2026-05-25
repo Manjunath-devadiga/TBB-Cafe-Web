@@ -1,8 +1,5 @@
 import { Navigate } from "react-router-dom";
-
-import {
-  getToken
-} from "../utils/customerAuth";
+import {getToken} from "../utils/customerAuth";
 
 export default function CustomerProtectedRoute({
   children,
@@ -11,7 +8,6 @@ export default function CustomerProtectedRoute({
   const token = getToken();
 
   if (!token) {
-
     return (
       <Navigate
         to="/customer-login"

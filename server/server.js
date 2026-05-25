@@ -15,7 +15,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const customerRoutes = require("./routes/customerRoutes");
 
 app.use("/admin", adminRoutes);
-app.use("/api/customers",customerRoutes);
+app.use("/api/customers", customerRoutes);
 
 // protected route (basic)
 app.get("/admin/dashboard", (req, res) => {
@@ -283,16 +283,17 @@ app.get("/api/dashboard/orders", (req, res) => {
 
   const sql = `
     SELECT 
-      orders.customer_name,
-      orders.total_price,
-      order_items.item,
-      order_items.quantity
-    FROM orders
-    JOIN order_items
-      ON orders.id = order_items.order_id
+    orders.id,
+    orders.customer_name,
+    orders.total_price,
+    GROUP_CONCAT(order_items.item SEPARATOR ', ') AS items,
+    GROUP_CONCAT(order_items.quantity SEPARATOR ', ') AS quantities
+    FROM orders JOIN order_items
+    ON orders.id = order_items.order_id
+    GROUP BY orders.id
     ORDER BY orders.id DESC
-    LIMIT 5
-  `;
+    LIMIT 5;
+    `;
 
   db.query(sql, (err, result) => {
 
@@ -449,11 +450,11 @@ app.get("/api/orders", (req, res) => {
       orders.address,
       orders.total_price,
       orders.created_at,
-      order_items.item,
-      order_items.quantity
-    FROM orders
-    JOIN order_items
+      GROUP_CONCAT(order_items.item SEPARATOR ', ') AS items,
+      GROUP_CONCAT(order_items.quantity SEPARATOR ', ') AS quantities
+    FROM orders JOIN order_items
     ON orders.id = order_items.order_id
+    GROUP BY orders.id
     ORDER BY orders.id DESC
   `;
 
@@ -466,6 +467,38 @@ app.get("/api/orders", (req, res) => {
     res.json(result);
   });
 });
+
+app.get("/api/orders/:customerId", (req, res) => {
+
+  const customerId = req.params.customerId;
+
+  const sql = `
+    SELECT 
+  orders.id,
+  orders.customer_name,
+  orders.address,
+  orders.total_price,
+  orders.created_at,
+  GROUP_CONCAT(order_items.item) AS items,
+  GROUP_CONCAT(order_items.quantity) AS quantities 
+  FROM orders
+  JOIN order_items
+  ON orders.id = order_items.order_id
+  WHERE orders.customer_id = ?
+  GROUP BY orders.id
+  ORDER BY orders.id DESC
+  `;
+
+  db.query(sql, [customerId], (err, result) => {
+
+    if (err) {
+      return res.status(500).json(err);
+    }
+
+    res.json(result);
+  });
+});
+
 
 // Serve Vite build
 app.use(express.static(path.join(__dirname, "dist")));

@@ -250,3 +250,25 @@ footer a:hover {
   z-index: 2;
 }
 
+.dropdown:hover .dropdown-menu {
+  display: block;
+  margin-top: 0;
+}
+
+.dropdown-menu {
+  background-color:white;
+  border-radius: 10px;
+  border: none;
+  padding: 10px;
+}
+
+.dropdown-item {
+  color: white;
+  transition: 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #ffc107;
+  color: black;
+  border-radius: 5px;
+}

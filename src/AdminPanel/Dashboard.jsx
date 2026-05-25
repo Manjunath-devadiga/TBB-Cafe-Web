@@ -46,7 +46,7 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard-container">
-       <Sidebar></Sidebar>      
+      <Sidebar></Sidebar>
       <div className="main-content container-fluid">
         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
           <div>
@@ -73,22 +73,70 @@ export default function Dashboard() {
         {/* STATS */}
         <div className="row g-4 mb-4">
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <StatCard
               title="Total Orders"
               value={stats.totalOrders} />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-3">
             <StatCard
               title="Customers"
               value={stats.customers} />
           </div>
 
-          <div className="col-md-4">
+          <div className="col-md-6">
             <StatCard
               title="Total Sales"
               value={`₹${stats.sales}`} />
+          </div>
+        </div>
+
+        {/* RECENT ORDERS */}
+        <div className="custom-card">
+          <div className="d-flex justify-content-between mb-4">
+            <h4>Recent Orders</h4>
+            <span className="see-all">
+              Latest Orders
+            </span>
+          </div>
+
+          <div className="table-responsive">
+            <table className="table align-middle">
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Item</th>
+                  <th>Quantity</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.length > 0 ? (
+                  orders.map((order, index) => (
+                    <tr key={index}>
+                      <td>{order.customer_name}</td>
+                      <td>{order.items}</td>
+                      <td>{order.quantities}</td>
+                      <td>₹{order.total_price}</td>
+                      <td>
+                        <span className="badge bg-success">
+                          Paid
+                        </span>
+                      </td>
+                    </tr>
+
+                  ))) : (
+                  <tr>
+                    <td colSpan="5" className="text-center">
+                      No Orders Found
+                    </td>
+                  </tr>
+
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
 
@@ -100,7 +148,6 @@ export default function Dashboard() {
             </div>
 
             {trendingmenu.length > 0 ? (
-
               trendingmenu.map((menu, index) => (
                 <div
                   key={index}
@@ -125,54 +172,6 @@ export default function Dashboard() {
               <p>No Trending Items</p>
             )}
           </div>
-        </div>
-      </div>
-
-      {/* RECENT ORDERS */}
-      <div className="custom-card">
-        <div className="d-flex justify-content-between mb-4">
-          <h4>Recent Orders</h4>
-          <span className="see-all">
-            Latest Orders
-          </span>
-        </div>
-
-        <div className="table-responsive">
-          <table className="table align-middle">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Customer</th>
-                <th>Quantity</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.length > 0 ? (
-                orders.map((order, index) => (
-                  <tr key={index}>
-                    <td>{order.item}</td>
-                    <td>{order.customer_name}</td>
-                    <td>{order.quantity}</td>
-                    <td>₹{order.total_price}</td>
-                    <td>
-                      <span className="badge bg-success">
-                        Paid
-                      </span>
-                    </td>
-                  </tr>
-
-                ))) : (
-                <tr>
-                  <td colSpan="5" className="text-center">
-                    No Orders Found
-                  </td>
-                </tr>
-
-              )}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
