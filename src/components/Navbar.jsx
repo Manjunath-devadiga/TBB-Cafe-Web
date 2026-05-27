@@ -132,23 +132,59 @@ export default function Navbar() {
             </Link>
           </div>
           {customer ? (
-            <div className="d-flex align-items-center">
-
-              <Link to="/orderhistory">
-                <button className="btn btn-warning ms-3">
-                  My Orders
-                </button>
-              </Link>
-
+            <div className="dropdown ms-3">
               <button
-                className="btn btn-danger ms-3"
-                onClick={() => {
-                  logoutCustomer();
-                  navigate("/customer-login");
-                }}
+                className="btn btn-warning dropdown-toggle d-flex align-items-center"
+                type="button"
+                data-bs-toggle="dropdown"
               >
-                Logout
+                <i className="bi bi-person-circle me-2"></i>
+
+                {customer.name || "Profile"}
               </button>
+
+              <ul className="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+
+                {/* Profile */}
+                <li>
+                  <Link
+                    to="/profile"
+                    className="dropdown-item"
+                  >
+                    <i className="bi bi-person me-2"></i>
+                    Profile
+                  </Link>
+                </li>
+
+                {/* Orders */}
+                <li>
+                  <Link
+                    to="/orderhistory"
+                    className="dropdown-item"
+                  >
+                    <i className="bi bi-bag-check me-2"></i>
+                    My Orders
+                  </Link>
+                </li>
+
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+
+                {/* Logout */}
+                <li>
+                  <button
+                    className="dropdown-item text-danger"
+                    onClick={() => {
+                      logoutCustomer();
+                      navigate("/customer-login");
+                    }}
+                  >
+                    <i className="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                  </button>
+                </li>
+              </ul>
             </div>
           ) : (
             <Link to="/customer-login">

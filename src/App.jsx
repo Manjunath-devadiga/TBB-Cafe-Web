@@ -45,7 +45,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Hero />}/>
           <Route path="/aboutus" element={<AboutUs />}/>
-          <Route path="/menu" element={<CustomerProtectedRoute><Menu cart={cart} setCart={setCart}/></CustomerProtectedRoute>}/>
+          <Route path="/menu" element={<Menu cart={cart} setCart={setCart}/>}/>
           <Route path="/cart" element={<CustomerProtectedRoute><Cart cart={cart} setCart={setCart}/></CustomerProtectedRoute>}/>
           <Route path="/reservation" element={<CustomerProtectedRoute><Reservation /></CustomerProtectedRoute>}/>
           <Route path="/order" element={<CustomerProtectedRoute><Order /></CustomerProtectedRoute>}/>

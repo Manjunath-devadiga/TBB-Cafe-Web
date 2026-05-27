@@ -44,23 +44,15 @@ export default function Sidebar() {
                   label="MenuManagement"
                   onClick={() => navigate("/Menumanagement")}
                 />
-
-                <MenuItem
-                  icon={<ChatSquareText/>}
-                  label="Cutomer reviews"
-                />
-
             </div>
             </div>
 
             <div className="logout">
                 <BoxArrowRight />
-
                 <button
                     onClick={handleLogout}
                     className="logout-btn"
-                >
-                    Logout
+                > Logout
                 </button>
             </div>
         </div>

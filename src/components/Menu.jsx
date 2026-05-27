@@ -1,240 +1,442 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
+import { fetchMenuSuccess, fetchMenuFailure } from "../redux/menuSlice";
 import { discountConfig } from "../data/discountConfig";
 import { motion } from "framer-motion";
-import { MENU_TYPES, CATEGORY } from "../config/menuConfig";
-import {  fetchMenuSuccess, fetchMenuFailure} from "../redux/menuSlice";
 import { useLocation } from "react-router-dom";
 
 import headerImg from "../assets/Pasta.jpg";
-import vegImg from "../assets/Salad.jpg";
-import nonVegImg from "../assets/Masala Dosa.jpg";
 
 export default function MenuPage() {
   const dispatch = useDispatch();
   const location = useLocation();
-  const { items, error } = useSelector(
-  (state) => state.menu);
-  const [foodType, setFoodType] = useState("All");
-  const [selectedCategory, setSelectedCategory] = useState("All");
-  const [search, setSearch] = useState("");
+
+  const { items } = useSelector(
+    (state) => state.menu
+  );
+
+  // STATES
+
+  const [foodType, setFoodType] =
+    useState("");
+
+  const [
+    selectedCategory,
+    setSelectedCategory,
+  ] = useState("");
+
+  const [search, setSearch] =
+    useState("");
+
+  // FETCH MENU
+
   useEffect(() => {
-  const params = new URLSearchParams(location.search);
+    const fetchMenu = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/menu"
+        );
 
-  const type = params.get("type");
-  const category = params.get("category");
+        const data = await res.json();
 
-  if (type) {
-    setFoodType(type);
-  }
+        dispatch(fetchMenuSuccess(data));
+      } catch (err) {
+        dispatch(
+          fetchMenuFailure(err.message)
+        );
+      }
+    };
 
-  if (category) {
-    setSelectedCategory(category);
-  }
-}, [location.search]);
+    fetchMenu();
+  }, [dispatch]);
 
-useEffect(() => {
-  const fetchMenu = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/menu"
+  // URL FILTERS
+
+  useEffect(() => {
+    const params = new URLSearchParams(
+      location.search
+    );
+    setFoodType(params.get("type") || "");
+    setSelectedCategory(params.get("category") || "");
+  }, [location.search]);
+
+  // RESET CATEGORY ON TYPE CHANGE
+
+  useEffect(() => {
+    setSelectedCategory("");
+  }, [foodType]);
+
+  // MENU TYPES
+
+  const menuTypes = [
+    ...new Set(
+      items
+        .map((item) => item.type)
+        .filter(Boolean)
+    ),
+  ];
+
+  // CATEGORIES
+
+  const categories = [
+    ...new Set(
+      items
+        .filter(
+          (item) =>
+            foodType &&
+            item.type === foodType &&
+            item.category
+        )
+        .map((item) => item.category)
+    ),
+  ];
+
+  // FILTER ITEMS
+
+  const filteredItems = items.filter(
+    (item) => {
+      const matchType =
+        !foodType ||
+        item.type === foodType;
+
+      const matchCategory =
+        !selectedCategory ||
+        item.category ===
+          selectedCategory;
+
+      const matchSearch =
+        item.name
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          );
+
+      return (
+        matchType &&
+        matchCategory &&
+        matchSearch
       );
-      const data = await res.json();
-      dispatch(fetchMenuSuccess(data));
-    } catch (err) {
-      dispatch(fetchMenuFailure(err.message));
+    }
+  );
+
+  // SEARCH ENTER
+
+  const handleSearch = () => {
+    const foundItem =
+      filteredItems.find((item) =>
+        item.name
+          ?.toLowerCase()
+          .includes(
+            search.toLowerCase()
+          )
+      );
+
+    if (foundItem) {
+      document
+        .getElementById(`menu-item-${foundItem.id}`)
+        ?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
     }
   };
 
-  fetchMenu();
-  }, [dispatch]);
-
-  useEffect(() => {
-    setSelectedCategory("All");
-  }, [foodType]);
-
-  const categories = ["All", ...(CATEGORY[foodType] || [])];
-
-  const filteredItems = items.filter(item => {
-    const itemType = item.type?.toLowerCase();
-    const searchText = search.toLowerCase();
-
-    const matchType =
-      foodType === "All" || itemType === foodType.toLowerCase();
-
-    const matchCategory =
-      foodType === "Veg" || foodType === "Non-Veg"
-        ? selectedCategory === "All" || item.category === selectedCategory
-        : true;
-
-    const matchSearch =
-      item.name?.toLowerCase().includes(searchText);
-
-    return matchType && matchCategory && matchSearch;
-  });
-
-
   return (
     <div
-      className="container-fluid px-0"
       style={{
+        background: "#fff",
         minHeight: "100vh",
-        background: "linear-gradient(to right, #7c8072, #dec5bc)",
       }}
     >
-      <section style={{ height: "300px", position: "relative" }}>
+      {/* HERO */}
+
+      <section
+        style={{
+          height: "75vh",
+          position: "relative",
+        }}
+      >
         <img
           src={headerImg}
-          alt="menu"
-          style={{ width: "100%", height: "100%", objectFit: "cover" }}
-        />
-
-        <div
+          alt=""
           style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.5)",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            filter: "brightness(55%)",
           }}
         />
 
-        <motion.div
-          className="text-center w-100"
-          style={{ position: "absolute", top: "50%", transform: "translateY(-50%)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+        <div
+          className="position-absolute top-50 start-50 translate-middle text-center"
+          style={{ zIndex: 2 }}
         >
-          <h1 className="text-white fw-bold">Explore Our Menu</h1>
-        </motion.div>
+          <motion.h1
+            initial={{opacity: 0,y: -20}}
+            animate={{opacity: 1,y: 0}}
+            className="fw-bold text-white"
+            style={{
+              fontSize: "4rem",
+              letterSpacing: "2px",
+            }}
+          >
+            OUR MENU
+          </motion.h1>
+
+          <p
+            className="text-light mt-3"
+            style={{
+              fontSize: "1.1rem",
+            }}
+          >
+            Fresh Ingredients • Premium
+            Taste
+          </p>
+        </div>
       </section>
 
-      <section className="py-4" style={{ background: "#1f1f1f" }}>
-        <div className="container">
+      {/* SEARCH */}
 
+      <div className="container">
+        <div
+          className="mx-auto"
+          style={{
+            maxWidth: "520px",
+            marginTop: "-35px",
+            position: "relative",
+            zIndex: 5,
+          }}
+        >
+          <input
+            type="text"
+            placeholder="Search your favourite food..."
+            value={search}
+            onChange={(e) =>
+              setSearch(e.target.value)
+            }
+            onKeyDown={(e) =>
+              e.key === "Enter" &&
+              handleSearch()
+            }
+            className="form-control border-0 shadow-lg"
+            style={{
+              borderRadius: "50px",
+              padding:
+                "16px 25px",
+              fontSize: "15px",
+            }}
+          />
+        </div>
+      </div>
 
-          <div className="d-flex flex-wrap gap-2 mb-3">
-            {MENU_TYPES.map(type => (
+      {/* TYPES */}
+
+      <div className="container py-5">
+        <div className="d-flex flex-wrap justify-content-center gap-3">
+
+          {menuTypes.map((type) => (
+            <button
+              key={type}
+              onClick={() =>
+                setFoodType(type)
+              }
+              className="btn"
+              style={{
+                borderRadius: "30px",
+                padding:"10px 25px",
+                fontWeight: "600",
+                transition:"0.3s ease",
+                border:foodType === type ? "none": "1px solid #ddd",
+                background:foodType === type? "#d4a373": "#fff",
+                color:foodType === type? "#fff": "#444",
+                boxShadow: foodType === type? "0 4px 15px rgba(212,163,115,0.3)": "none",
+              }}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+
+        {/* CATEGORIES */}
+
+        {categories.length > 0 && (
+          <div className="d-flex flex-wrap justify-content-center gap-2 mt-4">
+
+            {categories.map((cat) => (
               <button
-                key={type}
-                className={`btn ${foodType === type ? "btn-success" : "btn-outline-success"
-                  }`}
-                onClick={() => setFoodType(type)}
+                key={cat}
+                onClick={() =>
+                  setSelectedCategory(
+                    cat
+                  )
+                }
+                className="btn"
+                style={{
+                  borderRadius:"20px",
+                  padding:"8px 20px",
+                  transition:"0.3s ease",
+                  border: selectedCategory === cat? "none": "1px solid #ddd",
+                  background:selectedCategory === cat? "#d4a373": "#fff",
+                  color:selectedCategory === cat? "#fff": "rgb(10, 1, 1)",
+                }}
               >
-                {type}
+                {cat}
               </button>
             ))}
           </div>
+        )}
+      </div>
 
-          {(foodType === "Veg" || foodType === "Non-Veg") && (
-            <div className="d-flex flex-wrap gap-2 mb-3">
-              {categories.map(cat => (
-                <button
-                  key={cat}
-                  className={`btn ${selectedCategory === cat
-                      ? "btn-warning"
-                      : "btn-outline-light"
-                    }`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          )}
+      {/* MENU */}
 
-          <input
-            type="text"
-            placeholder="Search food..."
-            className="form-control"
-            style={{ maxWidth: "250px" }}
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-          />
-        </div>
-      </section>
-
-      <section className="container my-5 text-center">
-        <div className="row g-3">
-          {[vegImg, nonVegImg, headerImg].map((img, i) => (
-            <div key={i} className="col-md-4">
-              <motion.img
-                src={img}
-                className="img-fluid rounded shadow"
-                style={{ height: "250px", width: "350px", objectFit: "cover" }}
-              />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-dark text-white text-center py-3">
-        <h2>Foods you can Enjoy here!</h2>
-      </section>
-
-      <section className="container my-5 text-center">
+      <div className="container pb-5">
         <div className="row g-4">
-          {filteredItems.length > 0 ? (
-            filteredItems.map(item => {
-              const discount =
-                item.discount || discountConfig[item.id] || 0;
+          {filteredItems.map((item) => {
+            const discount =
+              item.discount || discountConfig[item.id] ||0;
 
-              const finalPrice =
-                item.price - (item.price * discount) / 100;
+            const finalPrice =item.price - (item.price *discount) /100;
 
-              return (
-                <div key={item.id} className="col-lg-3 col-md-4 col-sm-6">
-                  <div className="card h-100 text-light bg-secondary border-0 shadow">
+            return (
+              <div
+                key={item.id}
+                id={`menu-item-${item.id}`}
+                className="col-lg-4 col-md-6"
+              >
+                <motion.div
+                  whileHover={{y: -6,}}
+                  transition={{duration: 0.3,}}
+                  style={{
+                    background:"#fff",
+                    borderRadius:"25px",
+                    overflow:"hidden",
+                    border:"1px solid #eee",
+                    height:"100%",
+                    boxShadow:"0 10px 30px rgba(0,0,0,0.08)",
+                  }}>
+                  {/* IMAGE */}
 
+                  <div
+                    style={{
+                      height:"250px",
+                      overflow:"hidden",
+                    }}>
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="card-img-top"
                       style={{
-                        height: "200px",
-                        objectFit: "cover",
+                        width:"100%",
+                        height:"100%",
+                        objectFit:"cover",
+                        transition:"0.4s ease",
                       }}
                     />
-                    <div className="card-body">
+                  </div>
 
-                      {discount > 0 && (
-                        <span className="badge bg-danger">
-                          {discount}% OFF
+                  {/* CONTENT */}
+
+                  <div className="p-4">
+                    <div className="d-flex justify-content-between align-items-center">
+                      <h4 className="fw-bold mb-0">
+                        {item.name}
+                      </h4>
+
+                      {discount >
+                        0 && (
+                        <span
+                          className="badge"
+                          style={{
+                            background:"#e63946",
+                            padding:"7px 10px",
+                            fontSize:"12px",
+                          }}
+                        >{discount}% OFF
                         </span>
                       )}
+                    </div>
 
-                      <h5>{item.name}</h5>
+                    <p
+                      className="mt-3"
+                      style={{
+                        color:"#777",
+                        fontSize:"14px",
+                        lineHeight:"1.7",
+                      }}
+                    >
+                      Delicious freshly
+                      prepared food with
+                      premium ingredients.
+                    </p>
 
-                      <p>
-                        {discount > 0 ? (
-                          <>
-                            <del>₹{item.price}</del> ₹{finalPrice}
+                    <div className="d-flex justify-content-between align-items-center mt-4">
+
+                      <div>
+                        {discount >
+                        0 ? (
+                          <><span
+                              style={{
+                                textDecoration:"line-through",
+                                color:"#999",
+                                marginRight:"8px",
+                              }}>₹{item.price}
+                            </span>
+
+                            <span className="fw-bold fs-5">
+                              ₹{finalPrice}
+                            </span>
                           </>
                         ) : (
-                          `₹${item.price}`
+                          <span className="fw-bold fs-5">
+                            ₹{item.price}
+                          </span>
                         )}
-                      </p>
+                      </div>
 
                       <button
-                        className="btn btn-warning w-80"
                         onClick={() =>
                           dispatch(
-                            addToCart({ ...item, price: finalPrice })
+                            addToCart(
+                              {
+                                ...item,
+                                price:finalPrice,
+                              }
+                            )
                           )
                         }
+                        className="btn"
+                        style={{
+                          background:"#d4a373",
+                          color:"#fff",
+                          borderRadius:"50px",
+                          padding:"10px 22px",
+                          border:"none",
+                          fontWeight:"600",
+                          transition:"0.3s ease",
+                        }}
                       >
-                        Add to Cart
+                        Add
                       </button>
 
                     </div>
                   </div>
-                </div>
-              );
-            })
-          ) : (
-            <p className="text-center text-light">No items found 😔</p>
-          )}
+                </motion.div>
+              </div>
+            );
+          })}
         </div>
-      </section>
+
+        {/* EMPTY */}
+
+        {filteredItems.length ===
+          0 && (
+          <div className="text-center py-5">
+            <h4>
+              No food items found 😔
+            </h4>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

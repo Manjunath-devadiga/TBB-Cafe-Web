@@ -205,36 +205,17 @@ app.delete("/api/menu/:id", (req, res) => {
   });
 });
 
-app.post("/api/enquiry", (req, res) => {
-  const {
-    name,
-    email,
-    phone,
-    purpose,
-    guests,
-    date,
-    time,
-    message,
-  } = req.body;
+app.post("/api/feedback", (req, res) => {
+  const { name, email, rating, message } = req.body;
 
-  const sql = `
-    INSERT INTO enquiries
-    (name, email, phone, purpose, guests, date, time, message)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-  `;
+  const sql =
+    "INSERT INTO feedback (name, email, rating, message) VALUES (?, ?, ?, ?)";
 
-  db.query(
-    sql,
-    [name, email, phone, purpose, guests, date, time, message],
-    (err, result) => {
-      if (err) {
-        console.log(err);
-        res.status(500).send("Database Error");
-      } else {
-        res.status(200).send("Enquiry Saved");
-      }
-    }
-  );
+  db.query(sql, [name, email, rating, message], (err, result) => {
+    if (err) return res.status(500).send(err);
+
+    res.status(200).json({ message: "Feedback saved successfully" });
+  });
 });
 
 app.get("/api/dashboard/stats", async (req, res) => {
@@ -440,6 +421,7 @@ app.put("/api/reservations/cancel/:id", (req, res) => {
     });
   });
 });
+
 
 app.get("/api/orders", (req, res) => {
 

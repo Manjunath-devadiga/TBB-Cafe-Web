@@ -3,49 +3,40 @@ import Testimonials from "../components/Testimonals";
 import { useState } from "react";
 
 export default function Contact() {
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
-    purpose: "",
-    guests: "",
-    date: "",
-    time: "",
+    rating: "",
     message: "",
   });
 
+  const [submitted, setSubmitted] = useState(false);
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const response = await fetch("http://localhost:5000/api/enquiry", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(form),
-  });
+    try {
+      const res = await fetch("http://localhost:5000/api/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
-  if (response.ok) {
-    alert("Enquiry Submitted Successfully!");
+      if (res.ok) {
+        setSubmitted(true);
+        setFormData({ name: "", email: "", rating: "", message: "" });
+      }
+    } catch (error) {
+      console.error("Error submitting feedback:", error);
+    }
+  };
 
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      purpose: "",
-      guests: "",
-      date: "",
-      time: "",
-      message: "",
-    });
-  } else {
-    alert("Failed to submit enquiry");
-  }
-};
   return (
     <section
       className="container-fluid py-5"
@@ -60,161 +51,118 @@ export default function Contact() {
           <div className="col-lg-5 text-center">
             <div className="p-4">
               <h2 className="fw-bold mb-4">Contact Info</h2>
-
-              <p className="text-dark fs-5">
-                📍 Kharadi IT Park, Pune - 411014
-              </p>
-
-              <p className="text-dark fs-5">
+               <p className="text-dark fs-5">
                 📞 +91 1234567890
               </p>
 
               <p className="text-dark fs-5">
                 ✉️ info@TheOGcafe.com
               </p>
-
+              
+              <p className="text-dark fs-5">
+                📍 Kharadi IT Park, Pune - 411014
+              </p>
+              <div className="rounded-4 overflow-hidden shadow mt-4">
+                <iframe
+                  title="Cafe Location"
+                  src="https://www.google.com/maps?q=Kharadi+IT+Park+Pune&output=embed"
+                  width="100%"
+                  height="250"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </div>
               <Testimonials />
             </div>
           </div>
 
-          {/* Enquiry Form */}
+          {/* Feedback Form Section */}
           <div className="col-lg-7">
-            <div className="card border-0 shadow-lg rounded-4 p-4">
-              <h2 className="text-center mb-4 fw-bold text-primary">
-                Cafe Enquiry Form
+            <div className="card border-0 shadow-lg rounded-4 p-4 bg-white">
+              <h2 className="text-center fw-bold mb-4">
+                Customer Feedback
               </h2>
 
               <form onSubmit={handleSubmit}>
-
                 <div className="row">
                   <div className="col-md-6 mb-3">
-                    <label className="form-label text-white">Full Name</label>
+                    <label className="form-label fw-semibold">
+                      Name
+                    </label>
 
                     <input
                       type="text"
-                      className="form-control"
-                      placeholder="Enter your name"
                       name="name"
-                      value={form.name}
+                      className="form-control rounded-3"
+                      placeholder="Enter your name"
+                      value={formData.name}
                       onChange={handleChange}
                       required
                     />
                   </div>
 
                   <div className="col-md-6 mb-3">
-                    <label className="form-label text-white">Email</label>
+                    <label className="form-label fw-semibold">
+                      Email
+                    </label>
 
                     <input
                       type="email"
-                      className="form-control"
-                      placeholder="Enter your email"
                       name="email"
-                      value={form.email}
+                      className="form-control rounded-3"
+                      placeholder="Enter your email"
+                      value={formData.email}
                       onChange={handleChange}
                       required
                     />
                   </div>
                 </div>
 
-                <div className="row">
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label text-white">Phone Number</label>
+                <div className="mb-3">
+                  <label className="form-label fw-semibold">
+                    Rating
+                  </label>
 
-                    <input
-                      type="tel"
-                      className="form-control"
-                      placeholder="Enter phone number"
-                      name="phone"
-                      value={form.phone}
-                      onChange={handleChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="col-md-6 mb-3">
-                    <label className="form-label text-white">
-                      Purpose of Enquiry
-                    </label>
-
-                    <select
-                      className="form-select"
-                      name="purpose"
-                      value={form.purpose}
-                      onChange={handleChange}
-                      required
-                    >
-                      <option value="">Select Purpose</option>
-                      <option>Table Booking</option>
-                      <option>Birthday Party</option>
-                      <option>Catering</option>
-                      <option>Feedback</option>
-                      <option>General Question</option>
-                      <option>Job Inquiry</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="row">
-                  <div className="col-md-4 mb-3">
-                    <label className="form-label text-white">
-                      Number of Guests
-                    </label>
-
-                    <input
-                      type="number"
-                      className="form-control"
-                      placeholder="Guests"
-                      name="guests"
-                      value={form.guests}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="col-md-4 mb-3">
-                    <label className="form-label text-white">Date</label>
-
-                    <input
-                      type="date"
-                      className="form-control"
-                      name="date"
-                      value={form.date}
-                      onChange={handleChange}
-                    />
-                  </div>
-
-                  <div className="col-md-4 mb-3">
-                    <label className="form-label text-white">Time</label>
-
-                    <input
-                      type="time"
-                      className="form-control"
-                      name="time"
-                      value={form.time}
-                      onChange={handleChange}
-                    />
-                  </div>
+                  <select
+                    name="rating"
+                    className="form-select rounded-3"
+                    value={formData.rating}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="">Select Rating</option>
+                    <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                    <option value="4">⭐⭐⭐⭐ Very Good</option>
+                    <option value="3">⭐⭐⭐ Good</option>
+                    <option value="2">⭐⭐ Average</option>
+                    <option value="1">⭐ Poor</option>
+                  </select>
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label text-white">
-                    Message / Special Request
+                  <label className="form-label fw-semibold">
+                    Message
                   </label>
 
                   <textarea
-                    className="form-control"
-                    rows="4"
-                    placeholder="Write your enquiry..."
                     name="message"
-                    value={form.message}
+                    rows="5"
+                    className="form-control rounded-3"
+                    placeholder="Write your feedback..."
+                    value={formData.message}
                     onChange={handleChange}
                     required
                   ></textarea>
                 </div>
 
-                <button type="submit" className="btn btn-dark w-100 py-2 fs-5 rounded-3" >
-                  Submit Enquiry
+                <button
+                  type="submit"
+                  className="btn btn-dark w-100 py-2 rounded-3 fw-semibold"
+                >
+                  Submit Feedback
                 </button>
-
               </form>
             </div>
           </div>
