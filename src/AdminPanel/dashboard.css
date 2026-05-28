@@ -4,7 +4,7 @@
 }
 
 /* Sidebar */
-.sidebar {
+.dashboard-sidebar {
   width: 240px;
   background: #f3e4dc;
   padding: 30px 20px;
@@ -14,18 +14,18 @@
   border-radius: 0 30px 30px 0;
 }
 
-.logo {
+.dashboard-logo {
   font-weight: bold;
   margin-bottom: 50px;
 }
 
-.menu {
+.dashboard-menu {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.menu-item {
+.dashboard-menu-item {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -35,24 +35,16 @@
   transition: 0.3s;
 }
 
-.menu-item:hover {
+.dashboard-menu-item:hover {
   background: #e8d2c8;
 }
 
-.active-menu {
+.dashboard-active-menu {
   background: #c98c6d;
   color: white;
 }
 
-.logout {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-}
-
-/* Main */
-.main-content {
+.dashboard-main-content {
   flex: 1;
   padding: 30px;
 }

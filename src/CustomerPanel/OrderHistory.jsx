@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaBox } from "react-icons/fa";
 
 export default function OrderHistory() {
   const [orders, setOrders] = useState([]);
@@ -18,7 +19,6 @@ export default function OrderHistory() {
       );
 
       const data = await res.json();
-      console.log(data);
       setOrders(data);
 
     } catch (err) {
@@ -27,57 +27,135 @@ export default function OrderHistory() {
   };
 
   return (
-    <div className="container py-5">
-      <h2 className="text-center mb-4">
-        My Orders
-      </h2>
+    <div
+      style={{
+        background: "#f5f5f5",
+        minHeight: "100vh",
+        padding: "40px 20px",
+      }}
+    >
+      <div className="container">
 
-      <div className="row">
+        <h2
+          style={{
+            fontWeight: "700",
+            marginBottom: "30px",
+          }}
+        >
+          My Orders
+        </h2>
+
         {orders.map((order) => (
           <div
             key={order.id}
-            className="col-md-6 mb-4"
+            style={{
+              background: "#fff",
+              border: "1px solid #ffb2a8",
+              borderRadius: "8px",
+              padding: "20px",
+              marginBottom: "20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "20px",
+            }}
           >
-            <div className="border-0">
-              <div className="card-body">
 
-                <h5>
-                  Order #{order.id}
-                </h5>
+            {/* LEFT */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "15px",
+                flex: "2",
+                minWidth: "250px",
+              }}
+            >
 
-                <p>
-                  <strong>Name:</strong>{" "}
-                  {order.customer_name}
-                </p>
+              {/* ICON */}
+              <div
+                style={{
+                  width: "55px",
+                  height: "55px",
+                  background: "#ffa500",
+                  borderRadius: "10px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  fontSize: "22px",
+                }}
+              >
+                <FaBox />
+              </div>
 
-                <p>
-                  <strong>Address:</strong>{" "}
-                  {order.address}
-                </p>
-
-                <p>
-                  <strong>Item:</strong>{" "}
+              {/* ITEMS */}
+              <div>
+                <p
+                  style={{
+                    margin: "0",
+                    fontSize: "14px",
+                    color: "#555",
+                    lineHeight: "1.5",
+                  }}
+                >
                   {order.items}
                 </p>
 
-                <p>
-                  <strong>Quantity:</strong>{" "}
-                  {order.quantities}
-                </p>
-
-                <p>
-                  <strong>Total:</strong> ₹
-                  {order.total_price}
-                </p>
-
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(
-                    order.created_at
-                  ).toLocaleString()}
-                </p>
-
+                <small
+                  style={{
+                    color: "#999",
+                  }}
+                >
+                  Qty: {order.quantities}
+                </small>
               </div>
+            </div>
+
+            {/* PRICE */}
+            <div
+              style={{
+                minWidth: "100px",
+                fontWeight: "600",
+                color: "#444",
+              }}
+            >
+              ₹{order.total_price}
+            </div>
+
+            {/* ITEMS COUNT */}
+            <div
+              style={{
+                minWidth: "100px",
+                color: "#666",
+              }}
+            >
+              Items:{" "}
+              {order.quantities
+                .split(",")
+                .reduce(
+                  (sum, q) =>
+                    sum + Number(q),
+                  0
+                )}
+            </div>
+
+            {/* STATUS */}
+            <div
+              style={{
+                minWidth: "160px",
+                fontWeight: "500",
+                color:
+                  order.status === "Delivered"
+                    ? "green"
+                    : order.status ===
+                      "Dispatched"
+                      ? "#007bff"
+                      : "#ff9800",
+              }}
+            >
+              ● {order.status}
             </div>
           </div>
         ))}

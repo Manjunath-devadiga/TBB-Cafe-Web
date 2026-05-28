@@ -4,32 +4,19 @@ import { addToCart } from "../redux/cartSlice";
 import { fetchMenuSuccess, fetchMenuFailure } from "../redux/menuSlice";
 import { discountConfig } from "../data/discountConfig";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import headerImg from "../assets/Pasta.jpg";
 
 export default function MenuPage() {
   const dispatch = useDispatch();
   const location = useLocation();
+  const { items } = useSelector((state) => state.menu);
 
-  const { items } = useSelector(
-    (state) => state.menu
-  );
-
-  // STATES
-
-  const [foodType, setFoodType] =
-    useState("");
-
-  const [
-    selectedCategory,
-    setSelectedCategory,
-  ] = useState("");
-
-  const [search, setSearch] =
-    useState("");
-
-  // FETCH MENU
+  const navigate = useNavigate();
+  const [foodType, setFoodType] = useState("");
+  const [selectedCategory,setSelectedCategory] = useState("");
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -54,9 +41,7 @@ export default function MenuPage() {
   // URL FILTERS
 
   useEffect(() => {
-    const params = new URLSearchParams(
-      location.search
-    );
+    const params = new URLSearchParams(location.search);
     setFoodType(params.get("type") || "");
     setSelectedCategory(params.get("category") || "");
   }, [location.search]);
@@ -67,8 +52,6 @@ export default function MenuPage() {
     setSelectedCategory("");
   }, [foodType]);
 
-  // MENU TYPES
-
   const menuTypes = [
     ...new Set(
       items
@@ -76,9 +59,6 @@ export default function MenuPage() {
         .filter(Boolean)
     ),
   ];
-
-  // CATEGORIES
-
   const categories = [
     ...new Set(
       items
@@ -92,8 +72,6 @@ export default function MenuPage() {
     ),
   ];
 
-  // FILTER ITEMS
-
   const filteredItems = items.filter(
     (item) => {
       const matchType =
@@ -103,13 +81,12 @@ export default function MenuPage() {
       const matchCategory =
         !selectedCategory ||
         item.category ===
-          selectedCategory;
+        selectedCategory;
 
       const matchSearch =
         item.name
           ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
+          .includes(search.toLowerCase()
           );
 
       return (
@@ -120,43 +97,35 @@ export default function MenuPage() {
     }
   );
 
-  // SEARCH ENTER
-
   const handleSearch = () => {
     const foundItem =
       filteredItems.find((item) =>
         item.name
           ?.toLowerCase()
-          .includes(
-            search.toLowerCase()
-          )
+          .includes(search.toLowerCase())
       );
 
     if (foundItem) {
-      document
-        .getElementById(`menu-item-${foundItem.id}`)
+      document.getElementById(`menu-item-${foundItem.id}`)
         ?.scrollIntoView({
           behavior: "smooth",
           block: "center",
         });
     }
   };
+  const user = JSON.parse(
+    localStorage.getItem("customer")
+  );
 
   return (
-    <div
-      style={{
+    <div style={{
         background: "#fff",
-        minHeight: "100vh",
-      }}
-    >
-      {/* HERO */}
-
+        minHeight: "100vh"}}>
+  
       <section
         style={{
-          height: "75vh",
-          position: "relative",
-        }}
-      >
+          height: "50vh",
+          position: "relative" }}>
         <img
           src={headerImg}
           alt=""
@@ -164,278 +133,233 @@ export default function MenuPage() {
             width: "100%",
             height: "100%",
             objectFit: "cover",
-            filter: "brightness(55%)",
+            filter: "brightness(60%)",
           }}
         />
 
-        <div
-          className="position-absolute top-50 start-50 translate-middle text-center"
-          style={{ zIndex: 2 }}
-        >
-          <motion.h1
-            initial={{opacity: 0,y: -20}}
-            animate={{opacity: 1,y: 0}}
-            className="fw-bold text-white"
-            style={{
-              fontSize: "4rem",
-              letterSpacing: "2px",
-            }}
-          >
-            OUR MENU
-          </motion.h1>
+        <div className="position-absolute top-50 start-50 translate-middle text-center">
+          <h1
+            className="text-white fw-bold"
+            style={{fontSize: "4rem"}}
+          >Menu
+          </h1>
 
-          <p
-            className="text-light mt-3"
-            style={{
-              fontSize: "1.1rem",
-            }}
-          >
-            Fresh Ingredients • Premium
-            Taste
+          <p className="text-light">
+            Freshly crafted food & drinks
           </p>
         </div>
       </section>
 
-      {/* SEARCH */}
-
-      <div className="container">
+      <div className="container py-4">
         <div
           className="mx-auto"
-          style={{
-            maxWidth: "520px",
-            marginTop: "-35px",
-            position: "relative",
-            zIndex: 5,
-          }}
-        >
+          style={{maxWidth: "550px"}}>
           <input
             type="text"
-            placeholder="Search your favourite food..."
+            placeholder="Search menu..."
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            onKeyDown={(e) =>
-              e.key === "Enter" &&
-              handleSearch()
-            }
-            className="form-control border-0 shadow-lg"
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" &&
+              handleSearch()}
+            className="form-control"
             style={{
-              borderRadius: "50px",
-              padding:
-                "16px 25px",
-              fontSize: "15px",
+              borderRadius: "40px",
+              padding: "15px 22px",
+              border: "1px solid #ddd",
+              boxShadow:
+                "0 4px 12px rgba(0,0,0,0.05)",
             }}
           />
         </div>
       </div>
 
-      {/* TYPES */}
-
-      <div className="container py-5">
-        <div className="d-flex flex-wrap justify-content-center gap-3">
-
-          {menuTypes.map((type) => (
-            <button
-              key={type}
-              onClick={() =>
-                setFoodType(type)
-              }
-              className="btn"
-              style={{
-                borderRadius: "30px",
-                padding:"10px 25px",
-                fontWeight: "600",
-                transition:"0.3s ease",
-                border:foodType === type ? "none": "1px solid #ddd",
-                background:foodType === type? "#d4a373": "#fff",
-                color:foodType === type? "#fff": "#444",
-                boxShadow: foodType === type? "0 4px 15px rgba(212,163,115,0.3)": "none",
-              }}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-
-        {/* CATEGORIES */}
-
-        {categories.length > 0 && (
-          <div className="d-flex flex-wrap justify-content-center gap-2 mt-4">
-
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() =>
-                  setSelectedCategory(
-                    cat
-                  )
-                }
-                className="btn"
-                style={{
-                  borderRadius:"20px",
-                  padding:"8px 20px",
-                  transition:"0.3s ease",
-                  border: selectedCategory === cat? "none": "1px solid #ddd",
-                  background:selectedCategory === cat? "#d4a373": "#fff",
-                  color:selectedCategory === cat? "#fff": "rgb(10, 1, 1)",
-                }}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* MENU */}
+      {/* MAIN LAYOUT */}
 
       <div className="container pb-5">
-        <div className="row g-4">
-          {filteredItems.map((item) => {
-            const discount =
-              item.discount || discountConfig[item.id] ||0;
-
-            const finalPrice =item.price - (item.price *discount) /100;
-
-            return (
-              <div
-                key={item.id}
-                id={`menu-item-${item.id}`}
-                className="col-lg-4 col-md-6"
-              >
-                <motion.div
-                  whileHover={{y: -6,}}
-                  transition={{duration: 0.3,}}
-                  style={{
-                    background:"#fff",
-                    borderRadius:"25px",
-                    overflow:"hidden",
-                    border:"1px solid #eee",
-                    height:"100%",
-                    boxShadow:"0 10px 30px rgba(0,0,0,0.08)",
-                  }}>
-                  {/* IMAGE */}
-
-                  <div
+        <div className="row">
+          <div className="col-lg-3">
+            <div
+              style={{position: "sticky",top: "100px"}}>
+                <h4
+                className="fw-bold mb-4"
+                style={{color: "#1e3932"}}
+              >Menu
+              </h4>
+              <div className="d-flex flex-column gap-2">
+                {menuTypes.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() =>
+                      setFoodType(type)
+                    }
+                    className="btn text-start"
                     style={{
-                      height:"250px",
-                      overflow:"hidden",
-                    }}>
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      style={{
-                        width:"100%",
-                        height:"100%",
-                        objectFit:"cover",
-                        transition:"0.4s ease",
-                      }}
-                    />
-                  </div>
+                      background:
+                        foodType === type? "#1e3932"
+                          : "transparent",
+                      color:foodType === type
+                          ? "#fff": "#333",
+                      borderRadius: "12px",
+                      padding: "12px 18px",
+                      fontWeight: "500",
+                    }}
+                  >{type}
+                  </button>
+                ))}</div>
 
-                  {/* CONTENT */}
+              {/* CATEGORY */}
 
-                  <div className="p-4">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <h4 className="fw-bold mb-0">
-                        {item.name}
-                      </h4>
-
-                      {discount >
-                        0 && (
-                        <span
-                          className="badge"
-                          style={{
-                            background:"#e63946",
-                            padding:"7px 10px",
-                            fontSize:"12px",
-                          }}
-                        >{discount}% OFF
-                        </span>
-                      )}
-                    </div>
-
-                    <p
-                      className="mt-3"
-                      style={{
-                        color:"#777",
-                        fontSize:"14px",
-                        lineHeight:"1.7",
-                      }}
-                    >
-                      Delicious freshly
-                      prepared food with
-                      premium ingredients.
-                    </p>
-
-                    <div className="d-flex justify-content-between align-items-center mt-4">
-
-                      <div>
-                        {discount >
-                        0 ? (
-                          <><span
-                              style={{
-                                textDecoration:"line-through",
-                                color:"#999",
-                                marginRight:"8px",
-                              }}>₹{item.price}
-                            </span>
-
-                            <span className="fw-bold fs-5">
-                              ₹{finalPrice}
-                            </span>
-                          </>
-                        ) : (
-                          <span className="fw-bold fs-5">
-                            ₹{item.price}
-                          </span>
-                        )}
-                      </div>
-
+              {categories.length > 0 && (
+                <div className="mt-5">
+                  <h6 className="fw-bold mb-3">
+                    Categories
+                  </h6>
+                  <div className="d-flex flex-column gap-2">
+                    {categories.map((cat) => (
                       <button
+                        key={cat}
                         onClick={() =>
-                          dispatch(
-                            addToCart(
-                              {
-                                ...item,
-                                price:finalPrice,
-                              }
-                            )
-                          )
+                          setSelectedCategory(cat)
                         }
-                        className="btn"
+                        className="btn text-start"
                         style={{
-                          background:"#d4a373",
-                          color:"#fff",
-                          borderRadius:"50px",
-                          padding:"10px 22px",
-                          border:"none",
-                          fontWeight:"600",
-                          transition:"0.3s ease",
+                          background:
+                            selectedCategory === cat
+                              ? "#d4a373"
+                              : "#f8f8f8",
+                          color:
+                            selectedCategory === cat
+                              ? "#fff"
+                              : "#333",
+                          borderRadius: "10px",
+                          padding:"10px 16px",
                         }}
-                      >
-                        Add
+                      >{cat}
                       </button>
-
-                    </div>
+                    ))}
                   </div>
-                </motion.div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* EMPTY */}
-
-        {filteredItems.length ===
-          0 && (
-          <div className="text-center py-5">
-            <h4>
-              No food items found 😔
-            </h4>
+                </div>
+              )}
+            </div>
           </div>
-        )}
+          <div className="col-lg-9">
+            <div className="row g-4">
+              {filteredItems.map((item) => {
+
+                const discount = item.discount || discountConfig[item.id] || 0;
+                const finalPrice = item.price -(item.price * discount) /100;
+
+                return (
+                  <div
+                    key={item.id}
+                    id={`menu-item-${item.id}`}
+                    className="col-lg-6"
+                  >
+                    <motion.div
+                      whileHover={{y: -4}}
+                      style={{
+                        background: "#fff",
+                        borderRadius: "20px",
+                        overflow: "hidden",
+                        border:"1px solid #eee",
+                        display: "flex",
+                        height: "220px",
+                      }}>                  
+
+                      <div style={{width: "45%"}}>
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }} />
+                      </div>
+                      <div className="p-4 d-flex flex-column justify-content-between"
+                        style={{width: "55%"}}>
+                        <div>
+                          <div className="d-flex justify-content-between">
+                            <h5 className="fw-bold">
+                              {item.name}
+                            </h5>
+
+                            {discount > 0 && (
+                              <span
+                                style={{
+                                  background:
+                                    "#e63946",
+                                  color: "#fff",
+                                  fontSize:"11px",
+                                  padding:"5px 10px",
+                                  borderRadius:"30px",
+                                  height:"fit-content",
+                                }}>
+                                {discount}% OFF
+                              </span>
+                            )}</div>
+                        </div>
+
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            {discount > 0 ? (
+                              <>
+                                <span
+                                  style={{
+                                    textDecoration:"line-through",
+                                    color:"#999",
+                                    marginRight:"8px",
+                                  }}>
+                                  ₹{item.price}
+                                </span>
+
+                                <span className="fw-bold fs-5">
+                                  ₹{finalPrice}
+                                </span>
+                              </>
+                            ) : (
+                              <span className="fw-bold fs-5">
+                                ₹{item.price}
+                              </span>
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() =>{const user = JSON.parse(
+                              localStorage.getItem("customer"));
+                              if (!user) {
+                                navigate("/customer-login");
+                                return;
+                              }
+                              dispatch(
+                                addToCart({...item,price:finalPrice})
+                              )}}
+                          className="btn"
+                            style={{
+                              background:"#1e3932",
+                              color: "#fff",
+                              borderRadius:"30px",
+                              padding:"10px 18px",
+                              border: "none",
+                              fontWeight:"600",
+                            }}>
+                            Add item
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+                );
+              })}
+            </div>
+            {filteredItems.length === 0 && (
+              <div className="text-center py-5">
+                <h4>No food items found 😔</h4>
+              </div>
+            )}
+
+          </div>
+        </div>
       </div>
     </div>
   );

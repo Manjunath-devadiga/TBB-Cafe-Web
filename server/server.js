@@ -79,13 +79,13 @@ app.post("/reserve", (req, res) => {
 // Order Insertion
 app.post("/order", (req, res) => {
 
-  const { customerId, name, address, items, total } = req.body;
+  const { customerId, name, phoneNo, address, items, total } = req.body;
   const orderSql = `
-    INSERT INTO orders (customer_id, customer_name, address, total_price)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO orders (customer_id, customer_name,phone_no, address, total_price, status)
+    VALUES (?, ?, ?, ?,'Pending')
   `;
 
-  db.query(orderSql, [customerId, name, address, total], (err, orderResult) => {
+  db.query(orderSql, [customerId, name, phoneNo, address, total], (err, orderResult) => {
 
     if (err) {
       console.log(err);
@@ -137,29 +137,6 @@ app.post("/api/menu", (req, res) => {
     return res.status(400).send("Name, price, type and image are required");
   }
 
-  const allowedTypes = [
-    "Veg",
-    "Non-Veg",
-    "Beverages",
-    "Drinks",
-    "Desserts",
-    "Add-Ons",
-    "Roti",
-  ];
-
-  if (!allowedTypes.includes(type)) {
-    return res.status(400).send("Invalid type");
-  }
-
-  if (type === "Veg" || type === "Non-Veg") {
-    if (!category) {
-      return res
-        .status(400)
-        .send("Category required for Veg / Non-Veg");
-    }
-  } else {
-    category = null;
-  }
   discount = discount || 0;
 
   const sql =
@@ -431,6 +408,7 @@ app.get("/api/orders", (req, res) => {
       orders.customer_name,
       orders.address,
       orders.total_price,
+      orders.status,
       orders.created_at,
       GROUP_CONCAT(order_items.item SEPARATOR ', ') AS items,
       GROUP_CONCAT(order_items.quantity SEPARATOR ', ') AS quantities
@@ -450,6 +428,31 @@ app.get("/api/orders", (req, res) => {
   });
 });
 
+app.put("/api/orders/:id", async (req, res) => {
+  const { status } = req.body;
+
+  try {
+    const sql =
+      "UPDATE orders SET status=? WHERE id=?";
+
+    db.query(
+      sql,
+      [status, req.params.id],
+      (err, result) => {
+        if (err) {
+          return res.status(500).json(err);
+        }
+
+        res.json({
+          message: "Order status updated",
+        });
+      }
+    );
+  } catch (err) {
+    res.status(500).json(err);
+  }
+});
+
 app.get("/api/orders/:customerId", (req, res) => {
 
   const customerId = req.params.customerId;
@@ -460,6 +463,7 @@ app.get("/api/orders/:customerId", (req, res) => {
   orders.customer_name,
   orders.address,
   orders.total_price,
+  orders.status,
   orders.created_at,
   GROUP_CONCAT(order_items.item) AS items,
   GROUP_CONCAT(order_items.quantity) AS quantities 

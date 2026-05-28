@@ -19,10 +19,10 @@ export default function Sidebar() {
     };
 
     return (
-        <div className="sidebar">
+        <div className="dashboard-sidebar">
             <div>
-            <h2 className="logo">THE OG CAFE</h2>
-            <div className="menu">
+            <h2 className="dashboard-logo ">THE OG CAFE</h2>
+            <div className="dashboard-menu">
                 <MenuItem
                   icon={<House />}
                   label="Home"
@@ -64,7 +64,7 @@ function MenuItem({ icon, label, onClick }) {
 
     return (
         <div
-            className="menu-item"
+            className="dashboard-menu-item"
             onClick={onClick}
             style={{ cursor: "pointer" }}
         >

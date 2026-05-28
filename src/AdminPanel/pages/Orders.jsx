@@ -1,9 +1,6 @@
 import { useEffect } from "react";
-import { useDispatch, useSelector,} from "react-redux";
-import {
-  orderSuccess,
-  orderFailure,
-} from "../../redux/orderSlice";
+import { useDispatch, useSelector, } from "react-redux";
+import { orderSuccess,orderFailure } from "../../redux/orderSlice";
 import Sidebar from "../Sidebar";
 
 export default function Orders() {
@@ -12,25 +9,60 @@ export default function Orders() {
   const {
     orders,
     error,
-   } = useSelector((state) => state.orders);
+  } = useSelector((state) => state.orders);
 
   // FETCH ORDERS
   useEffect(() => {
-  const fetchOrders = async () => {
-    try {
-      const res = await fetch(
-        "http://localhost:5000/api/orders"
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch(
+          "http://localhost:5000/api/orders"
+        );
+
+        const data = await res.json();
+        dispatch(orderSuccess(data));
+
+      } catch (err) {
+        dispatch(orderFailure(err.message));
+      }
+    };
+    fetchOrders();
+  }, [dispatch]);
+
+  const updateStatus = async (
+  id,
+  status
+) => {
+  try {
+    await fetch(
+      `http://localhost:5000/api/orders/${id}`,
+      {
+        method: "PUT",
+        headers: {
+          "Content-Type":
+            "application/json",
+        },
+        body: JSON.stringify({
+          status,
+        }),
+      }
+    );
+
+    const updatedOrders =
+      orders.map((order) =>
+        order.id === id
+          ? { ...order, status }
+          : order
       );
 
-      const data = await res.json();
-      dispatch(orderSuccess(data));
+    dispatch(
+      orderSuccess(updatedOrders)
+    );
 
-    } catch (err) {
-      dispatch(orderFailure(err.message));
-    }
-  };
-  fetchOrders();
-}, [dispatch]);
+  } catch (err) {
+    console.error(err);
+  }
+};
 
   return (
     <div className="dashboard-container">
@@ -58,6 +90,7 @@ export default function Orders() {
                   <th>Item</th>
                   <th>Qty</th>
                   <th>Total</th>
+                  <th>Status</th>
                   <th>Date</th>
                 </tr>
               </thead>
@@ -79,6 +112,34 @@ export default function Orders() {
                       </td>
                       <td>
                         ₹{order.total_price}
+                      </td>
+                      <td>
+                        <select
+                          className="form-select"
+                          value={order.status}
+                          onChange={(e) =>
+                            updateStatus(
+                              order.id,
+                              e.target.value
+                            )
+                          }
+                        >
+                          <option value="Pending">
+                            Pending
+                          </option>
+
+                          <option value="Packed">
+                            Packed
+                          </option>
+
+                          <option value="Dispatched">
+                            Dispatched
+                          </option>
+
+                          <option value="Delivered">
+                            Delivered
+                          </option>
+                        </select>
                       </td>
 
                       <td>

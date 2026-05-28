@@ -2,7 +2,7 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   increaseQty,
   decreaseQty,
-  removeItem
+  removeItem,
 } from "../redux/cartSlice";
 
 import Order from "./Order";
@@ -11,62 +11,141 @@ export default function Cart() {
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
 
-  const total = cart.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
+  const total = cart.reduce((sum, item) => {
+    const finalPrice =
+      item.discount > 0
+        ? item.price - (item.price * item.discount) / 100
+        : item.price;
+
+    return sum + finalPrice * item.quantity;
+  }, 0);
 
   return (
-    <div className="container py-5">
-      <div className="row">
-        <div className="col-md-5">
-          <h2 className="mb-4">Your Cart</h2>
+    <div className="container py-4">
+      <div className="row g-4">
+
+        {/* CART */}
+        <div className="col-lg-5">
+          <h3 className="mb-4 fw-bold">
+            Your Cart
+          </h3>
 
           {cart.length === 0 ? (
-            <p>Cart is empty</p>
+            <p className="text-muted">
+              Cart is empty
+            </p>
           ) : (
-            cart.map((item) => (
-              <div key={item.name} className="card bg-dark text-white mb-3 p-3">
-                
-                <h5>{item.name}</h5>
-                <p>₹{item.price}</p>
+            <>
+              {cart.map((item) => {
+                const finalPrice =
+                  item.discount > 0
+                    ? item.price -
+                    (item.price * item.discount) / 100 : item.price;
 
-                <div className="d-flex align-items-center mb-2">
-                  <button
-                    className="btn btn-light me-2"
-                    onClick={() => dispatch(decreaseQty(item.name))}
-                  >
-                    -
-                  </button>
+                return (
+                  <div
+                    key={item.name}
+                    className="border rounded-3 p-3 mb-3 bg-white">
+                    <div className="d-flex align-items-center">
 
-                  <span>{item.quantity}</span>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        style={{
+                          width: "75px",
+                          height: "75px",
+                          objectFit: "cover",
+                          borderRadius: "10px",
+                        }}
+                      />
 
-                  <button
-                    className="btn btn-light ms-2"
-                    onClick={() => dispatch(increaseQty(item.name))}
-                  >
-                    +
-                  </button>
-                </div>
+                      {/* DETAILS */}
+                      <div className="ms-3 flex-grow-1">
+                        <h6 className="mb-1 fw-semibold">
+                          {item.name}
+                        </h6>
 
-                <button
-                  className="btn btn-danger"
-                  onClick={() => dispatch(removeItem(item.name))}
-                >
-                  Remove
-                </button>
+                        {/* PRICE */}
+                        <div className="mb-2 d-flex align-items-center gap-2">
+                          <span className="fw-bold text-dark">
+                            ₹{finalPrice}
+                          </span>
+
+                          {item.discount > 0 && (
+                            <>
+                              <span
+                                className="text-muted text-decoration-line-through small">
+                                ₹{item.price}
+                              </span>
+
+                              <span
+                                className="badge bg-danger"
+                                style={{ fontSize: "11px" }}>
+                                {item.discount}% OFF
+                              </span>
+                            </>
+                          )}
+
+                        </div>
+
+                        {/* QUANTITY */}
+                        <div className="d-flex align-items-center">
+
+                          <button
+                            className="btn btn-sm btn-light border"
+                            onClick={() =>
+                              dispatch(decreaseQty(item.name))
+                            }
+                          >
+                            -
+                          </button>
+
+                          <span className="mx-3">
+                            {item.quantity}
+                          </span>
+
+                          <button
+                            className="btn btn-sm btn-light border"
+                            onClick={() =>
+                              dispatch(increaseQty(item.name))
+                            }
+                          >
+                            +
+                          </button>
+
+                        </div>
+                      </div>
+
+                      {/* REMOVE */}
+                      <button
+                        className="btn btn-sm text-danger"
+                        onClick={() =>
+                          dispatch(removeItem(item.name))
+                        }
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* TOTAL */}
+              <div className="d-flex justify-content-between mt-4 border-top pt-3">
+                <h5>Total</h5>
+
+                <h5 className="fw-bold text-success">
+                  ₹{total.toFixed(2)}
+                </h5>
               </div>
-            ))
-          )}
-
-          {cart.length > 0 && (
-            <h4 className="mt-3">Total: ₹{total}</h4>
+            </>
           )}
         </div>
-        <div className="col-md-7">
+
+        {/* ORDER FORM */}
+        <div className="col-lg-7">
           <Order />
         </div>
-
       </div>
     </div>
   );
