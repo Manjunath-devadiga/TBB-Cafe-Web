@@ -5,13 +5,18 @@
 
 /* Sidebar */
 .dashboard-sidebar {
-  width: 240px;
+  width: 100%;
   background: #f3e4dc;
   padding: 30px 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-radius: 0 30px 30px 0;
+}
+@media (min-width: 768px) {
+  .dashboard-sidebar {
+    width: 240px;
+  }
 }
 
 .dashboard-logo {

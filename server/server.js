@@ -82,7 +82,7 @@ app.post("/order", (req, res) => {
   const { customerId, name, phoneNo, address, items, total } = req.body;
   const orderSql = `
     INSERT INTO orders (customer_id, customer_name,phone_no, address, total_price, status)
-    VALUES (?, ?, ?, ?,'Pending')
+    VALUES (?, ?, ?, ?, ?,'Pending')
   `;
 
   db.query(orderSql, [customerId, name, phoneNo, address, total], (err, orderResult) => {

@@ -12,6 +12,7 @@ export default function Order() {
   const [name, setName] = useState("");
   const [phoneNo, setPhoneNo] = useState("");
   const [address, setAddress] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
 
   const total = cart.reduce((sum, item) => {
     const finalPrice =
@@ -22,32 +23,17 @@ export default function Order() {
     return sum + finalPrice * item.quantity;
   }, 0);
 
-  // SUBMIT ORDER
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // VALIDATION
-    if (!name.trim()) {
-      alert("Please enter your name");
-      return;
-    }
 
-    if (!phoneNo.trim()) {
-      alert("Please enter phone number");
-      return;
-    }
+    setShowPopup(true);
+  };
 
-    if (!address.trim()) {
-      alert("Please enter address");
-      return;
-    }
+  // PLACE ORDER
+  const placeOrder = async () => {
 
-    if (cart.length === 0) {
-      alert("Cart is empty");
-      return;
-    }
-
-    // ORDER OBJECT
     const orderData = {
       customerId: customer?.id || null,
       name: name.trim(),
@@ -64,13 +50,17 @@ export default function Order() {
     };
 
     try {
-      const response = await fetch("http://localhost:5000/order", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(orderData),
-      });
+
+      const response = await fetch(
+        "http://localhost:5000/order",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Request failed");
@@ -78,8 +68,8 @@ export default function Order() {
 
       const data = await response.json();
 
-      // SUCCESS
       if (data.success) {
+
         alert("Order Placed Successfully!");
 
         dispatch(clearCart());
@@ -87,10 +77,15 @@ export default function Order() {
         setName("");
         setPhoneNo("");
         setAddress("");
+
+        setShowPopup(false);
+
       } else {
         alert(data.message || "Order Failed");
       }
+
     } catch (error) {
+
       console.error("Order Error:", error);
       alert("Server Error");
     }
@@ -100,7 +95,7 @@ export default function Order() {
   if (cart.length === 0) {
     return (
       <div className="container py-5 text-center">
-        <h4>Your cart is empty 🛒</h4>
+        <h4>Your cart is empty 🛒 Visit Menu to place order</h4>
       </div>
     );
   }
@@ -146,6 +141,7 @@ export default function Order() {
             className="form-control mb-3"
             placeholder="Enter Delivery Address"
             rows="3"
+            maxLength="200"
             value={address}
             onChange={(e) =>
               setAddress(e.target.value)
@@ -168,6 +164,42 @@ export default function Order() {
           </motion.button>
         </form>
       </div>
+      {/* PAYMENT POPUP */}
+      {showPopup && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center"
+          style={{
+            background: "rgba(0,0,0,0.5)",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            className="bg-white p-4 rounded shadow"
+            style={{
+              width: "90%",
+              maxWidth: "350px",
+            }}
+          >
+            <h5 className="mb-3 text-center">
+              Select Payment Method
+            </h5>
+
+            <button
+              className="btn btn-warning w-100 mb-2"
+              onClick={placeOrder}
+            >
+              Cash on Delivery
+            </button>
+
+            <button
+              className="btn btn-outline-secondary w-100"
+              onClick={() => setShowPopup(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
