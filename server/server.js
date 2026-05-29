@@ -79,13 +79,13 @@ app.post("/reserve", (req, res) => {
 // Order Insertion
 app.post("/order", (req, res) => {
 
-  const { customerId, name, phoneNo, address, items, total } = req.body;
+  const { customerId, name,email, phoneNo, address, items, total } = req.body;
   const orderSql = `
     INSERT INTO orders (customer_id, customer_name,phone_no, address, total_price, status)
     VALUES (?, ?, ?, ?, ?,'Pending')
   `;
 
-  db.query(orderSql, [customerId, name, phoneNo, address, total], (err, orderResult) => {
+  db.query(orderSql, [customerId, name, phoneNo, address, total], async(err, orderResult) => {
 
     if (err) {
       console.log(err);
@@ -104,22 +104,87 @@ app.post("/order", (req, res) => {
       VALUES ?
     `;
 
-    db.query(itemSql, [itemValues], (err, result) => {
+    db.query(itemSql, [itemValues], async(err, result) => {
 
       if (err) {
         console.log(err);
         return res.status(500).send("Items Error");
       }
 
+       // create items html
+          const itemList = items
+            .map(
+              (item) => `
+                <li>
+                  ${item.name}
+                  x ${item.quantity || 1}
+                </li>
+              `
+            ).join("");
+
+          // send email
+          try {
+
+            await transporter.sendMail({
+
+              from:
+                process.env.EMAIL_USER,
+              to: email,
+              subject:"Order Placed Successfully",
+
+              html: `
+                <h2>
+                  Thank You For Your Order
+                </h2>
+
+                <p>
+                  Hello ${name},
+                </p>
+
+                <p>
+                  Your order has been placed successfully.
+                </p>
+
+                <h3>
+                  Order Details
+                </h3>
+
+                <ul>
+                  ${itemList}
+                </ul>
+
+                <p>
+                  <strong>
+                    Total:
+                  </strong>
+                  ₹${total}
+                </p>
+
+                <p>
+                  <strong>
+                    Delivery Address:
+                  </strong>
+                  ${address}
+                </p>
+                <br />
+                <p>
+                  Thank you for ordering from us ❤️
+                </p>
+              `,
+            });
+
+            console.log("Email sent successfully");
+
+          } catch (mailErr) {
+            console.log("Mail Error:",mailErr);
+          }
+
+
       res.json({
         success: true,
-        message: "Order placed successfully"
-      });
-
+        message: "Order placed successfully"});
     });
-
   });
-
 });
 
 app.get("/api/menu", (req, res) => {

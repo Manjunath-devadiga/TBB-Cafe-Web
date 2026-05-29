@@ -1,4 +1,5 @@
 import "../index.css";
+import Footer from "./Footer"
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import items from "../data/menudata";
@@ -100,7 +101,7 @@ export default function Hero() {
 
       </div>
       </section>
-      
+      <Footer></Footer>
     </>
   );
 }

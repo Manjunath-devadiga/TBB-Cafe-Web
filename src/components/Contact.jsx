@@ -1,6 +1,7 @@
 import "../index.css";
 import Testimonials from "../components/Testimonals";
 import { useState } from "react";
+import Footer from "./Footer";
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -38,12 +39,10 @@ export default function Contact() {
   };
 
   return (
+    <>
     <section
       className="container-fluid py-5"
-      style={{
-        background: "linear-gradient(to right, #7c8072, #dec5bc)",
-      }}
-    >
+      style={{background: "linear-gradient(to right, #7c8072, #dec5bc)"}}>
       <div className="container">
         <div className="row g-4 align-items-start">
 
@@ -71,8 +70,7 @@ export default function Contact() {
                   style={{ border: 0 }}
                   allowFullScreen=""
                   loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
+                  referrerPolicy="no-referrer-when-downgrade"></iframe>
               </div>
               <Testimonials />
             </div>
@@ -170,5 +168,7 @@ export default function Contact() {
         </div>
       </div>
     </section>
+    <Footer></Footer>
+    </>
   );
 }

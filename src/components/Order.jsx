@@ -37,6 +37,7 @@ export default function Order() {
     const orderData = {
       customerId: customer?.id || null,
       name: name.trim(),
+      email: customer?.email || "",
       phoneNo: phoneNo.trim(),
       address: address.trim(),
 

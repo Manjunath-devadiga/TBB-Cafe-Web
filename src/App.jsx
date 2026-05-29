@@ -2,8 +2,6 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route, useLocation,} from "react-router-dom";
 
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-
 import Orders from "./AdminPanel/pages/Orders";
 import Hero from "./components/Hero";
 import Menu from "./components/Menu";
@@ -65,7 +63,7 @@ function AppContent() {
 
         </Routes>
       </div>
-      {!isAdminRoute && <Footer />}
+     
     </>
   );
 }
