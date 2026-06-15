@@ -13,6 +13,7 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.11.2",
     "bootstrap": "^5.3.8",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.38.0",
     "jsdom": "^29.0.2",
     "nodemailer": "^8.0.7",
